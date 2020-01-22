@@ -55,7 +55,7 @@ class RootActivity : AppCompatActivity() {
         val searchView = (menuItem?.actionView as? SearchView)
         searchView?.queryHint = getString(R.string.article_search_placeholder)
 
-        //focus the SearchView
+        //restore SearchView
         if (isSearching) {
             menuItem?.expandActionView()
             searchView?.setQuery(searchQuery, false)
