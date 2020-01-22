@@ -53,7 +53,7 @@ class RootActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.menu_search, menu)
         val menuItem = menu?.findItem(R.id.action_search)
         val searchView = (menuItem?.actionView as? SearchView)
-        searchView?.queryHint = "Search"
+        searchView?.queryHint = getString(R.string.article_search_placeholder)
 
         //focus the SearchView
         if (isSearching) {
