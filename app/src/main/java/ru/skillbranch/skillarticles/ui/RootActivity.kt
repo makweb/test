@@ -58,7 +58,7 @@ class RootActivity : AppCompatActivity() {
         //focus the SearchView
         if (isSearching) {
             menuItem?.expandActionView()
-            searchView?.setQuery(searchQuery, true)
+            searchView?.setQuery(searchQuery, false)
             searchView?.clearFocus()
         }
 
