@@ -9,10 +9,12 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.text.getSpans
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_root.*
@@ -42,10 +44,13 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
         val vmFactory = ViewModelFactory("0")
         ViewModelProviders.of(this, vmFactory).get(ArticleViewModel::class.java)
     }
-    override val binding: ArticleBinding by lazy { ArticleBinding() }
+    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
+    public override val binding: ArticleBinding by lazy { ArticleBinding() }
 
-    private val bgColor by AttrValue(R.attr.colorSecondary)
-    private val fgColor by AttrValue(R.attr.colorOnSecondary)
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val bgColor by AttrValue(R.attr.colorSecondary)
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val fgColor by AttrValue(R.attr.colorOnSecondary)
 
     override fun setupViews() {
         setupToolbar()
@@ -55,7 +60,7 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
 
     override fun renderSearchResult(searchResult: List<Pair<Int, Int>>) {
         val content = tv_text_content.text as Spannable
-
+        tv_text_content.isVisible
         //clear entry search result
         clearSearchResult()
 

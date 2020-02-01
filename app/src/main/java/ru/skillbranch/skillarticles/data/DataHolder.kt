@@ -8,7 +8,7 @@ import ru.skillbranch.skillarticles.R
 import java.util.*
 
 object LocalDataHolder {
-    private var isDalay = true
+    private var isDelay = true
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val articleData = MutableLiveData<ArticleData?>(null)
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -16,9 +16,10 @@ object LocalDataHolder {
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val settings = MutableLiveData(AppSettings())
 
+
     fun findArticle(articleId: String): LiveData<ArticleData?> {
         GlobalScope.launch {
-            if (isDalay) delay(1000)
+            if (isDelay) delay(1000)
             withContext(Dispatchers.Main){
                 articleData.value = ArticleData(
                         title = "CoordinatorLayout Basic",
@@ -36,7 +37,7 @@ object LocalDataHolder {
 
     fun findArticlePersonalInfo(articleId: String): LiveData<ArticlePersonalInfo?> {
         GlobalScope.launch {
-            if (isDalay) delay(500)
+            if (isDelay) delay(500)
             withContext(Dispatchers.Main){
                 articleInfo.value = ArticlePersonalInfo(isBookmark = true)
             }
@@ -54,8 +55,15 @@ object LocalDataHolder {
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    fun clearData(){
+        articleInfo.postValue(null)
+        articleData.postValue(null)
+        settings.postValue(AppSettings())
+    }
+
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     fun disableDelay(value:Boolean = false) {
-        isDalay = value
+        isDelay = !value
     }
 }
 
@@ -77,7 +85,12 @@ object NetworkDataHolder {
 
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     fun disableDelay(value:Boolean = false) {
-        isDelay = value
+        isDelay = !value
+    }
+
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    fun clearData(){
+        content.postValue(null)
     }
 }
 
