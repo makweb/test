@@ -4,7 +4,7 @@ package ru.skillbranch.skillarticles.viewmodels.base
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-//import ru.skillbranch.skillarticles.ui.TestViewModel
+import ru.skillbranch.skillarticles.ui.TestViewModel
 import ru.skillbranch.skillarticles.viewmodels.ArticleViewModel
 
 class ViewModelFactory(private val params: Any) : ViewModelProvider.Factory {
@@ -12,9 +12,9 @@ class ViewModelFactory(private val params: Any) : ViewModelProvider.Factory {
         if (modelClass.isAssignableFrom(ArticleViewModel::class.java)) {
             return ArticleViewModel(params as String) as T
         }
-       /* if (modelClass.isAssignableFrom(TestViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(TestViewModel::class.java)) {
             return TestViewModel(params as String) as T
-        }*/
+        }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

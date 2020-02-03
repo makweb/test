@@ -1,5 +1,7 @@
 package ru.skillbranch.skillarticles
 
+import org.junit.Assert
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import ru.skillbranch.skillarticles.extensions.indexesOf
 import kotlin.properties.Delegates
@@ -12,7 +14,7 @@ import kotlin.properties.Delegates
 class ExampleUnitTest {
     @Test
     fun addition_isCorrect() {
-//        assertEquals(4, 2 + 2)
+        assertEquals(4, 2 + 2)
 
         /*var salary: Float by Delegates.observable(0.0F) { prop, old, new ->
             println("prop: $prop old: $old new: $new")
@@ -31,6 +33,8 @@ class ExampleUnitTest {
         println("get value salary: $salary")
 
         println("lorem ipsum sum".indexesOf("sum"))
+
+        Assert.assertEquals("A user with this email already exists" , "A user with this email already exists")
 
     }
 }
