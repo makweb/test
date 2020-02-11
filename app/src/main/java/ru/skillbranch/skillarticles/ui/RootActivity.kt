@@ -5,6 +5,7 @@ import android.text.Selection
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.method.ScrollingMovementMethod
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
@@ -298,7 +299,7 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
 
         override fun bind(data: IViewModelState) {
             data as ArticleState
-
+            Log.e("RootActivity", "bind expect: ${data.isDarkMode}");
             isLike = data.isLike
             isBookmark = data.isBookmark
             isShowMenu = data.isShowMenu
