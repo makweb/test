@@ -1,10 +1,12 @@
 package ru.skillbranch.skillarticles.ui
 
+import android.graphics.Color
 import android.os.Bundle
 import android.text.Selection
 import android.text.Spannable
 import android.text.SpannableString
-import android.text.method.ScrollingMovementMethod
+import android.text.SpannableStringBuilder
+import android.text.style.BackgroundColorSpan
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -14,6 +16,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
+import androidx.core.text.clearSpans
 import androidx.core.text.getSpans
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProviders
@@ -65,6 +68,8 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
         //clear entry search result
         clearSearchResult()
 
+        content.clearSpans()
+
         searchResult.forEach { (start, end) ->
             content.setSpan(
                 SearchSpan(bgColor, fgColor),
@@ -73,9 +78,6 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
                 SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE
             )
         }
-
-        //scroll to first searched element
-        renderSearchPosition(0)
     }
 
     override fun renderSearchPosition(searchPosition: Int) {
@@ -125,7 +127,7 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
             menuItem?.expandActionView()
             searchView?.setQuery(binding.searchQuery, false)
 
-            if(binding.isFocusedSearch) searchView?.requestFocus()
+            if (binding.isFocusedSearch) searchView?.requestFocus()
             else searchView?.clearFocus()
         }
 
@@ -201,11 +203,13 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
 
         btn_result_up.setOnClickListener {
             if (search_view.hasFocus()) search_view.clearFocus()
+            if (!tv_text_content.hasFocus()) tv_text_content.requestFocus()
             viewModel.handleUpResult()
         }
 
         btn_result_down.setOnClickListener {
             if (search_view.hasFocus()) search_view.clearFocus()
+            if (!tv_text_content.hasFocus()) tv_text_content.requestFocus()
             viewModel.handleDownResult()
         }
 
@@ -231,7 +235,7 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
     }
 
     inner class ArticleBinding : Binding() {
-        var isFocusedSearch:Boolean = false
+        var isFocusedSearch: Boolean = false
         var searchQuery: String? = null
 
         private var isLoadingContent by ObserveProp(true)
@@ -273,8 +277,26 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
         private var searchPosition: Int by ObserveProp(0)
 
         private var content: String by ObserveProp("loading") {
-            tv_text_content.setText(it, TextView.BufferType.SPANNABLE)
-            tv_text_content.movementMethod = ScrollingMovementMethod()
+            /*MarkdownBuilder(this@RootActivity)
+                .markdownToSpan(it)
+                .run{
+                    tv_text_content.setText(this, TextView.BufferType.SPANNABLE)
+                }
+
+            tv_text_content.movementMethod = LinkMovementMethod.getInstance()*/
+            val spannable = SpannableStringBuilder("spanned long string text")
+            spannable.setSpan(
+                BackgroundColorSpan(Color.RED),
+                8,
+                20,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            spannable.insert(20, " INSERT AFTER EXCLUSIVE ")
+            tv_text_content.setText(spannable, TextView.BufferType.SPANNABLE)
+//           val text =  tv_text_content.text as Spannable
+//            text.setSpan(BackgroundColorSpan(Color.RED), 0, 15, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+//            text.setSpan(ForegroundColorSpan(Color.WHITE), 8, 15, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+
         }
 
         override fun onFinishInflate() {
@@ -284,11 +306,11 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
                 ::searchResults,
                 ::searchPosition
             ) { ilc, iss, sr, sp ->
-                if(!ilc && iss){
+                if (!ilc && iss) {
                     renderSearchResult(sr)
                     renderSearchPosition(sp)
                 }
-                if(!ilc && !iss){
+                if (!ilc && !iss) {
                     clearSearchResult()
                 }
 
@@ -309,7 +331,7 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
             if (data.title != null) title = data.title
             if (data.category != null) category = data.category
             if (data.categoryIcon != null) categoryIcon = data.categoryIcon as Int
-            if (data.content.isNotEmpty()) content = data.content.first() as String
+            if (data.content != null) content = data.content
 
             isLoadingContent = data.isLoadingContent
             isSearch = data.isSearch
@@ -318,11 +340,11 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
             searchResults = data.searchResults
         }
 
-        override fun saveUi(outState:Bundle){
-            outState.putBoolean(::isFocusedSearch.name, search_view?.hasFocus() ?:false)
+        override fun saveUi(outState: Bundle) {
+            outState.putBoolean(::isFocusedSearch.name, search_view?.hasFocus() ?: false)
         }
 
-        override fun restoreUi(savedState:Bundle){
+        override fun restoreUi(savedState: Bundle) {
             isFocusedSearch = savedState.getBoolean(::isFocusedSearch.name)
         }
     }
