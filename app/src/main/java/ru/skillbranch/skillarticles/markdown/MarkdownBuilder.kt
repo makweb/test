@@ -2,6 +2,7 @@ package ru.skillbranch.skillarticles.markdown
 
 import android.content.Context
 import android.graphics.Typeface
+import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.SpannedString
 import android.text.style.StrikethroughSpan
@@ -115,6 +116,28 @@ class MarkdownBuilder(context: Context) {
                         URLSpan(element.link)
                     ) {
                         append(element.text)
+                    }
+                }
+
+                is Element.BlockCode -> {
+                    append(
+                        element.text,
+                        BlockCodeSpan(
+                            colorOnSurface,
+                            colorSurface,
+                            cornerRadius,
+                            gap,
+                            element.type
+                        ),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                }
+
+                is Element.OrderedListItem -> {
+                    inSpans(OrderedListSpan(gap, element.order, colorSecondary)) {
+                        for (child in element.elements) {
+                            buildElement(child, builder)
+                        }
                     }
                 }
 
