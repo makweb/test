@@ -1,12 +1,10 @@
 package ru.skillbranch.skillarticles.ui
 
-import android.graphics.Color
 import android.os.Bundle
 import android.text.Selection
 import android.text.Spannable
 import android.text.SpannableString
-import android.text.SpannableStringBuilder
-import android.text.style.BackgroundColorSpan
+import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -28,6 +26,7 @@ import kotlinx.android.synthetic.main.search_view_layout.*
 import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
 import ru.skillbranch.skillarticles.extensions.setMarginOptionally
+import ru.skillbranch.skillarticles.markdown.MarkdownBuilder
 import ru.skillbranch.skillarticles.ui.base.BaseActivity
 import ru.skillbranch.skillarticles.ui.base.Binding
 import ru.skillbranch.skillarticles.ui.custom.SearchFocusSpan
@@ -277,25 +276,13 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
         private var searchPosition: Int by ObserveProp(0)
 
         private var content: String by ObserveProp("loading") {
-            /*MarkdownBuilder(this@RootActivity)
+            MarkdownBuilder(this@RootActivity)
                 .markdownToSpan(it)
                 .run{
                     tv_text_content.setText(this, TextView.BufferType.SPANNABLE)
                 }
 
-            tv_text_content.movementMethod = LinkMovementMethod.getInstance()*/
-            val spannable = SpannableStringBuilder("spanned long string text")
-            spannable.setSpan(
-                BackgroundColorSpan(Color.RED),
-                8,
-                20,
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-            spannable.insert(20, " INSERT AFTER EXCLUSIVE ")
-            tv_text_content.setText(spannable, TextView.BufferType.SPANNABLE)
-//           val text =  tv_text_content.text as Spannable
-//            text.setSpan(BackgroundColorSpan(Color.RED), 0, 15, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-//            text.setSpan(ForegroundColorSpan(Color.WHITE), 8, 15, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            tv_text_content.movementMethod = LinkMovementMethod.getInstance()
 
         }
 
