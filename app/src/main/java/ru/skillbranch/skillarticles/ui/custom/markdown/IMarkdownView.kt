@@ -28,6 +28,7 @@ interface IMarkdownView {
                 )
             }
         } catch (e: Exception) {
+
         }
     }
 

@@ -131,15 +131,13 @@ class MarkdownImageView private constructor(
                 setPadding(titleTopMargin)
                 isVisible = false
             }
+            addView(tv_alt)
+
+            iv_image.setOnClickListener {
+                if (tv_alt?.isVisible == true) animateHideAlt()
+                else animateShowAlt()
+            }
         }
-
-        addView(tv_alt)
-
-        iv_image.setOnClickListener {
-            if (tv_alt?.isVisible == true) animateHideAlt()
-            else animateShowAlt()
-        }
-
     }
 
 
@@ -161,6 +159,10 @@ class MarkdownImageView private constructor(
         usedHeight += tv_title.measuredHeight
 
         setMeasuredDimension(width, usedHeight)
+    }
+
+    override fun onDraw(canvas: Canvas?) {
+        super.onDraw(canvas)
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {

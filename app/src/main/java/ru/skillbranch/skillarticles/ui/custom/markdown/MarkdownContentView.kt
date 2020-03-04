@@ -1,10 +1,13 @@
 package ru.skillbranch.skillarticles.ui.custom.markdown
 
 import android.content.Context
+import android.graphics.Canvas
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.view.children
 import ru.skillbranch.skillarticles.data.repositories.MarkdownElement
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
 import ru.skillbranch.skillarticles.extensions.groupByBounds
@@ -17,22 +20,13 @@ class MarkdownContentView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : ViewGroup(context, attrs, defStyleAttr) {
     lateinit var elements: List<MarkdownElement>
-    private val children: MutableList<View> = mutableListOf()
-        get() {
-            if (childCount != field.size) {
-                field.clear()
-                for (i in 0 until childCount) {
-                    field.add(getChildAt(i))
-                }
-            }
-            return field
-        }
+
     //for restore
     private var ids = arrayListOf<Int>()
 
     var textSize by Delegates.observable(14f) { _, old, value ->
         if (value == old) return@observable
-        children.forEach {
+        this.children.forEach {
             it as IMarkdownView
             it.fontSize = value
         }
@@ -51,6 +45,18 @@ class MarkdownContentView @JvmOverloads constructor(
 
         usedHeight += paddingBottom
         setMeasuredDimension(width, usedHeight)
+
+        Log.e("MarkdownContentView", "onMeasure: $width $usedHeight" );
+    }
+
+    override fun dispatchDraw(canvas: Canvas?) {
+        super.dispatchDraw(canvas)
+        Log.e("MarkdownContentView", "dispatchDraw: $childCount");
+    }
+
+    override fun onDraw(canvas: Canvas?) {
+        Log.e("MarkdownContentView", "onDraw: ");
+        super.onDraw(canvas)
 
     }
 
@@ -78,7 +84,7 @@ class MarkdownContentView @JvmOverloads constructor(
             }
             usedHeight += it.measuredHeight
         }
-
+        Log.e("MarkdownContentView", "onLayout: $childCount");
     }
 
     fun setContent(content: List<MarkdownElement>) {
@@ -125,6 +131,11 @@ class MarkdownContentView @JvmOverloads constructor(
                 }
             }
         }
+    }
+
+    override fun addView(child: View?) {
+        super.addView(child)
+        Log.e("MarkdownContentView", "addView: ");
     }
 
     fun renderSearchResult(searchResult: List<Pair<Int, Int>>) {

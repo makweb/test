@@ -209,6 +209,7 @@ class MarkdownCodeView private constructor(
         applyColors()
     }
 
+
     private fun applyColors() {
         iv_switch.imageTintList = ColorStateList.valueOf(textColor)
         iv_copy.imageTintList = ColorStateList.valueOf(textColor)

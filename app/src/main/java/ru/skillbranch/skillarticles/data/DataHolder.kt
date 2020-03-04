@@ -168,7 +168,7 @@ We created an abstract class `SearchBgRenderer` that knows how to compute the to
 The `draw` function will have different implementations depending on whether our text spans a single line or multiple lines. Both of the implementations work on the same principle: based on the line top and bottom, set the bounds of the drawable and render it on the canvas.
 
 The single line implementation only needs to draw one drawable.
-![](https://miro.medium.com/max/1155/0*HS6zOL8stqjTodpJ "Single line text")
+![Single line text with search rounded background](https://miro.medium.com/max/1155/0*HS6zOL8stqjTodpJ "Single line text")
 The multi-line implementation needs to draw the start and the end of line drawables on the first, and last line respectively, then for each line in the middle, draw the middle line drawable.
 ![](https://miro.medium.com/max/1155/0*Tz3lRa59dixAI5LA "Multi-line text")
 ### Supporting custom drawing on a TextView

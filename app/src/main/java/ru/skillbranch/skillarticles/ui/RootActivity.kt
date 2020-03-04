@@ -239,7 +239,7 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
         private var searchPosition: Int by ObserveProp(0)
 
         private var content: List<MarkdownElement> by ObserveProp(emptyList()) {
-            tv_text_content.isLoading = it.isEmpty()
+//            tv_text_content.isLoading = it.isEmpty()
             tv_text_content.setContent(it)
             if (it.isNotEmpty()) setupCopyListener()
 

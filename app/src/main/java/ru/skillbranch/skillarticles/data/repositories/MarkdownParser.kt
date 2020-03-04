@@ -34,7 +34,7 @@ object MarkdownParser {
     fun parse(string: String): List<MarkdownElement> {
         val elements = mutableListOf<Element>()
         elements.addAll(findElements(string))
-        return elements.fold(mutableListOf()) { acc, element ->
+        val ress: List<MarkdownElement> = elements.fold(mutableListOf()) { acc, element ->
             val last = acc.lastOrNull()
             when (element) {
                 is Element.Image -> acc.add(
@@ -61,6 +61,8 @@ object MarkdownParser {
             }
             acc
         }
+
+        return ress
     }
 
     /**
@@ -401,7 +403,7 @@ object MarkdownParser {
                     val (alt, url, title) = "^!\\[([^\\[\\]]*?)?]\\((.*?) \"(.*?)\"\\)$".toRegex()
                         .find(text)!!.destructured
 
-                    val element = Element.Image(url, alt, title)
+                    val element = Element.Image(url, if (alt.isBlank()) null else alt, title)
                     parents.add(element)
                     lastStartIndex = endIndex
                 }
@@ -420,37 +422,36 @@ object MarkdownParser {
 
 data class MarkdownText(val elements: List<Element>)
 
-sealed class MarkdownElement(val offset: Int = 0) {
+sealed class MarkdownElement() {
+    abstract val offset: Int
     val bounds: Pair<Int, Int> by lazy {
-        when (this) {
+        when(this){
             is Text -> {
-                val end = elements.fold(boundOffset) { acc, el ->
+                val end = elements.fold(offset){ acc, el ->
                     acc + el.spread().map { it.text.length }.sum()
                 }
                 offset to end
             }
 
             is Image -> offset to image.text.length + offset
-
             is Scroll -> offset to blockCode.text.length + offset
         }
     }
 
     data class Text(
         val elements: MutableList<Element>,
-        val boundOffset: Int = 0
-    ) : MarkdownElement(boundOffset)
+        override val offset: Int = 0
+    ) : MarkdownElement()
 
     data class Image(
         val image: Element.Image,
-        val boundOffset: Int = 0
-    ) : MarkdownElement(boundOffset)
+        override val offset: Int = 0
+    ) : MarkdownElement()
 
     data class Scroll(
         val blockCode: Element.BlockCode,
-        val boundOffset: Int = 0
-    ) : MarkdownElement(boundOffset)
-
+        override val offset: Int = 0
+    ) : MarkdownElement()
 }
 
 sealed class Element() {
@@ -550,11 +551,11 @@ private fun Element.clearContent(): String {
     }.toString()
 }
 
-fun List<MarkdownElement>.clearContent() : String {
+fun List<MarkdownElement>.clearContent(): String {
     return StringBuilder().apply {
         this@clearContent.forEach {
-            when(it){
-                is MarkdownElement.Text -> it.elements.forEach{el -> append(el.clearContent())}
+            when (it) {
+                is MarkdownElement.Text -> it.elements.forEach { el -> append(el.clearContent()) }
                 is MarkdownElement.Image -> append(it.image.clearContent())
                 is MarkdownElement.Scroll -> append(it.blockCode.clearContent())
             }
