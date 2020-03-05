@@ -38,7 +38,6 @@ class MarkdownTextView constructor(
     }
 
     init {
-//        setBackgroundColor(Color.GREEN)
         setTextColor(color)
         textSize = fontSize
         movementMethod = LinkMovementMethod.getInstance()

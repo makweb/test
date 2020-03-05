@@ -1,10 +1,7 @@
 package ru.skillbranch.skillarticles.ui.custom.markdown
 
 import android.content.Context
-import android.graphics.Canvas
 import android.util.AttributeSet
-import android.util.Log
-import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.view.children
@@ -19,7 +16,7 @@ class MarkdownContentView @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : ViewGroup(context, attrs, defStyleAttr) {
-    lateinit var elements: List<MarkdownElement>
+    private lateinit var elements: List<MarkdownElement>
 
     //for restore
     private var ids = arrayListOf<Int>()
@@ -45,20 +42,8 @@ class MarkdownContentView @JvmOverloads constructor(
 
         usedHeight += paddingBottom
         setMeasuredDimension(width, usedHeight)
-
-        Log.e("MarkdownContentView", "onMeasure: $width $usedHeight" );
     }
 
-    override fun dispatchDraw(canvas: Canvas?) {
-        super.dispatchDraw(canvas)
-        Log.e("MarkdownContentView", "dispatchDraw: $childCount");
-    }
-
-    override fun onDraw(canvas: Canvas?) {
-        Log.e("MarkdownContentView", "onDraw: ");
-        super.onDraw(canvas)
-
-    }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         var usedHeight = paddingTop
@@ -84,7 +69,6 @@ class MarkdownContentView @JvmOverloads constructor(
             }
             usedHeight += it.measuredHeight
         }
-        Log.e("MarkdownContentView", "onLayout: $childCount");
     }
 
     fun setContent(content: List<MarkdownElement>) {
@@ -131,11 +115,6 @@ class MarkdownContentView @JvmOverloads constructor(
                 }
             }
         }
-    }
-
-    override fun addView(child: View?) {
-        super.addView(child)
-        Log.e("MarkdownContentView", "addView: ");
     }
 
     fun renderSearchResult(searchResult: List<Pair<Int, Int>>) {

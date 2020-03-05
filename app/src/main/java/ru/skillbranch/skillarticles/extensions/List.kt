@@ -1,6 +1,6 @@
 package ru.skillbranch.skillarticles.extensions
 
-fun List<Pair<Int, Int>>.groupByBounds(bounds: List<Pair<Int, Int>>): List<MutableList<Pair<Int, Int>>> {
+fun List<Pair<Int, Int>>.groupByBounds(bounds: List<Pair<Int, Int>>): List<List<Pair<Int, Int>>> {
 
     val results= List<MutableList<Pair<Int, Int>>>(bounds.size){mutableListOf()}
 

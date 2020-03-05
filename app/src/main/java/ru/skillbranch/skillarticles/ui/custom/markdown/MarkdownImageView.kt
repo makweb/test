@@ -43,8 +43,8 @@ class MarkdownImageView private constructor(
         get() = tv_title.text as Spannable
 
     //views
-    lateinit var imageUrl: String
-    lateinit var imageTitle: CharSequence
+    private lateinit var imageUrl: String
+    private lateinit var imageTitle: CharSequence
 
     private val iv_image: ImageView
     private val tv_title: MarkdownTextView
@@ -73,9 +73,6 @@ class MarkdownImageView private constructor(
     }
 
     init {
-
-//        setBackgroundColor(Color.RED)
-
         layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
         iv_image = ImageView(context).apply {
             outlineProvider = object : ViewOutlineProvider() {
@@ -119,8 +116,6 @@ class MarkdownImageView private constructor(
             .transform(AspectRatioResizeTransform())
             .into(iv_image)
 
-
-
         if (alt != null) {
             tv_alt = TextView(context).apply {
                 text = alt
@@ -159,10 +154,6 @@ class MarkdownImageView private constructor(
         usedHeight += tv_title.measuredHeight
 
         setMeasuredDimension(width, usedHeight)
-    }
-
-    override fun onDraw(canvas: Canvas?) {
-        super.onDraw(canvas)
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
@@ -270,6 +261,4 @@ class AspectRatioResizeTransform : BitmapTransformation() {
     override fun equals(other: Any?): Boolean = other is AspectRatioResizeTransform
 
     override fun hashCode(): Int = ID.hashCode()
-
-
 }

@@ -3,9 +3,6 @@ package ru.skillbranch.skillarticles.data.repositories
 import java.util.regex.Pattern
 
 object MarkdownParser {
-
-    private val LINE_SEPARATOR = "\n"
-
     //group regex
     private const val UNORDERED_LIST_ITEM_GROUP = "(^[*+-] .+$)"
     private const val HEADER_GROUP = "(^#{1,6} .+?$)"
@@ -34,7 +31,7 @@ object MarkdownParser {
     fun parse(string: String): List<MarkdownElement> {
         val elements = mutableListOf<Element>()
         elements.addAll(findElements(string))
-        val ress: List<MarkdownElement> = elements.fold(mutableListOf()) { acc, element ->
+        return elements.fold(mutableListOf()) { acc, element ->
             val last = acc.lastOrNull()
             when (element) {
                 is Element.Image -> acc.add(
@@ -61,8 +58,6 @@ object MarkdownParser {
             }
             acc
         }
-
-        return ress
     }
 
     /**
@@ -109,7 +104,6 @@ object MarkdownParser {
                 //2 -> HEADER GROUP
                 2 -> {
                     val reg = "^#{1,6}".toRegex().find(string.substring(startIndex, endIndex))
-                    val l = reg!!.value
                     val level = reg!!.value.length
 
                     clearString += string.substring(startIndex + level.inc(), endIndex)
@@ -419,8 +413,6 @@ object MarkdownParser {
         return parents
     }
 }
-
-data class MarkdownText(val elements: List<Element>)
 
 sealed class MarkdownElement() {
     abstract val offset: Int

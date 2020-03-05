@@ -20,7 +20,6 @@ import ru.skillbranch.skillarticles.extensions.dpToIntPx
 import ru.skillbranch.skillarticles.extensions.dpToPx
 import ru.skillbranch.skillarticles.extensions.setPaddingOptionally
 
-
 @SuppressLint("ViewConstructor")
 class MarkdownCodeView private constructor(
     context: Context,
@@ -37,7 +36,7 @@ class MarkdownCodeView private constructor(
 
     var copyListener: ((String) -> Unit)? = null
 
-    lateinit var codeString: CharSequence
+    private lateinit var codeString: CharSequence
 
     //views
     private val iv_copy: ImageView
@@ -198,7 +197,6 @@ class MarkdownCodeView private constructor(
 
     override fun renderSearchPosition(searchPosition: Pair<Int, Int>, offset: Int) {
         super.renderSearchPosition(searchPosition, offset)
-
         if((parent as ViewGroup).hasFocus() && !tv_codeView.hasFocus()) tv_codeView.requestFocus()
         Selection.setSelection(spannableContent, searchPosition.first.minus(offset))
     }

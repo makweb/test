@@ -19,7 +19,6 @@ class SearchBgHelper(
     context: Context,
     private val focusListener: (Int, Int) -> Unit
 ) {
-
     private val padding: Int = context.dpToIntPx(4)
     private val borderWidth: Int = context.dpToIntPx(1)
     private val radius: Float = context.dpToPx(8)
@@ -27,7 +26,7 @@ class SearchBgHelper(
     private val secondaryColor: Int = context.attrValue(R.attr.colorSecondary)
     private val alphaColor: Int = ColorUtils.setAlphaComponent(secondaryColor, 160)
 
-    val drawable: Drawable by lazy {
+    private val drawable: Drawable by lazy {
         GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             cornerRadii = FloatArray(8).apply { fill(radius, 0, size) }
@@ -36,7 +35,7 @@ class SearchBgHelper(
         }
     }
 
-    val drawableLeft: Drawable by lazy {
+    private val drawableLeft: Drawable by lazy {
         GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             cornerRadii = floatArrayOf(
@@ -50,7 +49,7 @@ class SearchBgHelper(
         }
     }
 
-    val drawableMiddle: Drawable by lazy {
+    private val drawableMiddle: Drawable by lazy {
         GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             color = ColorStateList.valueOf(alphaColor)
@@ -198,9 +197,9 @@ class SingleLineRender(
 
 class MultiLineRender(
     padding: Int,
-    val drawableLeft: Drawable,
-    val drawableMiddle: Drawable,
-    val drawableRight: Drawable
+    private val drawableLeft: Drawable,
+    private val drawableMiddle: Drawable,
+    private val drawableRight: Drawable
 ) : SearchBgRender(padding) {
     private var lineTop: Int = 0
     private var lineBottom: Int = 0
