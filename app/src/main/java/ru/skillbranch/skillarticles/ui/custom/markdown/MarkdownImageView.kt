@@ -9,6 +9,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.Px
+import androidx.annotation.VisibleForTesting
 import androidx.core.animation.doOnEnd
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.isVisible
@@ -27,7 +28,7 @@ import kotlin.math.hypot
 
 
 @SuppressLint("ViewConstructor")
-class MarkdownImageView private constructor(
+open class MarkdownImageView private constructor(
     context: Context,
     fontSize: Float
 ) : ViewGroup(context, null, 0), IMarkdownView {
@@ -46,7 +47,8 @@ class MarkdownImageView private constructor(
     private lateinit var imageUrl: String
     private lateinit var imageTitle: CharSequence
 
-    private val iv_image: ImageView
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val iv_image: ImageView
     private val tv_title: MarkdownTextView
     private var tv_alt: TextView? = null
 
@@ -111,8 +113,8 @@ class MarkdownImageView private constructor(
         tv_title.setText(title, TextView.BufferType.SPANNABLE)
 
         Glide
-            .with(context)
-            .load(url)
+            .with(iv_image.context)
+            .load("android.resource://ru.skillbranch.skillarticles/drawable/logo")
             .transform(AspectRatioResizeTransform())
             .into(iv_image)
 
@@ -136,7 +138,8 @@ class MarkdownImageView private constructor(
     }
 
 
-    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
+    public override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         var usedHeight = 0
         val width = View.getDefaultSize(suggestedMinimumWidth, widthMeasureSpec)
 
@@ -144,6 +147,8 @@ class MarkdownImageView private constructor(
         //all children width == parent width (constraint parent width)
         val ms = MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY)
 
+        val i = iv_image
+        println("$iv_image")
         iv_image.measure(ms, heightMeasureSpec)
         tv_title.measure(ms, heightMeasureSpec)
         tv_alt?.measure(ms, heightMeasureSpec)
