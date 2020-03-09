@@ -73,7 +73,7 @@ class HeaderSpan constructor(
 
 
         //line break +1 character
-        if(spanEnd == end || spanEnd == end.dec()){
+        if(spanEnd == end.dec()){
             val originDescent = fm.descent
             val originHeight = fm.descent - originAscent
             fm.descent = (originHeight * linePadding + marginBottom).toInt()

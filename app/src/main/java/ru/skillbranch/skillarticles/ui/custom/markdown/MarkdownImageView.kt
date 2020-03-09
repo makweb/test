@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
 import android.text.Spannable
+import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
@@ -28,7 +29,7 @@ import kotlin.math.hypot
 
 
 @SuppressLint("ViewConstructor")
-open class MarkdownImageView private constructor(
+class MarkdownImageView private constructor(
     context: Context,
     fontSize: Float
 ) : ViewGroup(context, null, 0), IMarkdownView {
@@ -49,8 +50,10 @@ open class MarkdownImageView private constructor(
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val iv_image: ImageView
-    private val tv_title: MarkdownTextView
-    private var tv_alt: TextView? = null
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val tv_title: MarkdownTextView
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    var tv_alt: TextView? = null
 
     @Px
     private val titleTopMargin: Int = context.dpToIntPx(8)
@@ -113,8 +116,8 @@ open class MarkdownImageView private constructor(
         tv_title.setText(title, TextView.BufferType.SPANNABLE)
 
         Glide
-            .with(iv_image.context)
-            .load("android.resource://ru.skillbranch.skillarticles/drawable/logo")
+            .with(context)
+            .load(url)
             .transform(AspectRatioResizeTransform())
             .into(iv_image)
 
@@ -161,7 +164,8 @@ open class MarkdownImageView private constructor(
         setMeasuredDimension(width, usedHeight)
     }
 
-    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
+    public override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         var usedHeight = 0
         val bodyWidth = r - l - paddingLeft - paddingRight
         val left = paddingLeft
@@ -192,7 +196,8 @@ open class MarkdownImageView private constructor(
 
     }
 
-    override fun dispatchDraw(canvas: Canvas) {
+    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
+    public override fun dispatchDraw(canvas: Canvas) {
         super.dispatchDraw(canvas)
         canvas.drawLine(
             0f,
@@ -202,6 +207,8 @@ open class MarkdownImageView private constructor(
             linePaint
         )
 
+        val l = canvas.width - titlePadding.toFloat()
+        val r = canvas.width.toFloat()
         canvas.drawLine(
             canvas.width - titlePadding.toFloat(),
             linePositionY,
@@ -209,6 +216,7 @@ open class MarkdownImageView private constructor(
             linePositionY,
             linePaint
         )
+        Log.e("MarkdownImageView", "dr: ");
     }
 
     private fun animateShowAlt() {
