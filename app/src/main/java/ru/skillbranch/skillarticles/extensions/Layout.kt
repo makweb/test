@@ -29,6 +29,7 @@ fun Layout.getLineBottomWithoutPadding(line: Int): Int {
     if (line == lineCount.dec()) {
         lineBottom -= bottomPadding
     }
+
     return lineBottom
 }
 
