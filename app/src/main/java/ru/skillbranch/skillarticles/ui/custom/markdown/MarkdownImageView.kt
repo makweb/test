@@ -80,6 +80,7 @@ class MarkdownImageView private constructor(
     }
 
     private var isOpen = false
+    private var aspectRatio = 0f
 
     init {
         layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
@@ -119,11 +120,6 @@ class MarkdownImageView private constructor(
 
         tv_title.setText(title, TextView.BufferType.SPANNABLE)
 
-        Glide
-            .with(context)
-            .load(url)
-            .transform(AspectRatioResizeTransform())
-            .into(iv_image)
 
         if (alt != null) {
             tv_alt = TextView(context).apply {
@@ -145,6 +141,15 @@ class MarkdownImageView private constructor(
         }
     }
 
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        Glide
+            .with(context)
+            .load(imageUrl)
+            .transform(AspectRatioResizeTransform())
+            .into(iv_image)
+    }
+
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     public override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -155,9 +160,12 @@ class MarkdownImageView private constructor(
         //all children width == parent width (constraint parent width)
         val ms = MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY)
 
-        val i = iv_image
-        println("$iv_image")
-        iv_image.measure(ms, heightMeasureSpec)
+        if (aspectRatio != 0f) {
+            //restore width/height by aspectRatio
+            val hms =
+                MeasureSpec.makeMeasureSpec((width / aspectRatio).toInt(), MeasureSpec.EXACTLY)
+            iv_image.measure(ms, hms)
+        } else iv_image.measure(ms, heightMeasureSpec)
         tv_title.measure(ms, heightMeasureSpec)
         tv_alt?.measure(ms, heightMeasureSpec)
 
@@ -254,6 +262,7 @@ class MarkdownImageView private constructor(
         val savedState =
             SavedState(super.onSaveInstanceState())
         savedState.ssIsOpen = isOpen
+        savedState.ssAspectRatio = (iv_image.width.toFloat() / iv_image.height)
         return savedState
     }
 
@@ -261,24 +270,28 @@ class MarkdownImageView private constructor(
         super.onRestoreInstanceState(state)
         if (state is SavedState) {
             isOpen = state.ssIsOpen
+            aspectRatio = state.ssAspectRatio
             tv_alt?.isVisible = isOpen
         }
     }
 
     private class SavedState : BaseSavedState, Parcelable {
         var ssIsOpen: Boolean = false
+        var ssAspectRatio: Float = 0f
 
         constructor(superState: Parcelable?) : super(superState)
 
         constructor(src: Parcel) : super(src) {
             //restore state from parcel
             ssIsOpen = src.readInt() == 1
+            ssAspectRatio = src.readFloat()
         }
 
         override fun writeToParcel(dst: Parcel, flags: Int) {
             //write state to parcel
             super.writeToParcel(dst, flags)
             dst.writeInt(if (ssIsOpen) 1 else 0)
+            dst.writeFloat(ssAspectRatio)
         }
 
         override fun describeContents() = 0
