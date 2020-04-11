@@ -33,6 +33,4 @@ class AuthFragment : BaseFragment<AuthViewModel>() {
         (tv_access_code.text as Spannable).let { it[0..it.length] = UnderlineSpan(color) }
         (tv_privacy.text as Spannable).let { it[0..it.length] = UnderlineSpan(color) }
     }
-
-
 }

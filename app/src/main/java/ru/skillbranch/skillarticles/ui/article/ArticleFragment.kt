@@ -11,9 +11,7 @@ import android.view.WindowManager
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.navigation.navOptions
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
@@ -25,7 +23,6 @@ import kotlinx.android.synthetic.main.layout_bottombar.view.*
 import kotlinx.android.synthetic.main.layout_submenu.*
 import kotlinx.android.synthetic.main.layout_submenu.view.*
 import kotlinx.android.synthetic.main.search_view_layout.*
-import ru.skillbranch.skillarticles.AuthDirections
 import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.data.repositories.MarkdownElement
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
@@ -108,23 +105,7 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
 
         et_comment.setOnEditorActionListener { view, _, _ ->
             root.hideKeyboard(view)
-//            viewModel.handleSendComment()
-
-            val dir = AuthDirections.start2()
-
-//            findNavController().navigatorProvider.addNavigator().navigateUp()
-
-            val op = navOptions {
-                launchSingleTop = true
-                popUpTo(R.id.nav_bookmarks) { inclusive = false }
-                anim {
-                    enter = R.anim.fragment_fade_enter
-                    exit = R.anim.fragment_fade_enter
-                    popEnter = R.anim.nav_default_pop_enter_anim
-                    popExit = R.anim.nav_default_pop_exit_anim
-                }
-            }
-            findNavController().navigate(dir)
+            viewModel.handleSendComment()
             true
         }
     }
@@ -193,7 +174,11 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
     }
 
     private fun setupBottombar() {
-        bottombar.btn_like.setOnClickListener { viewModel.handleLike() }
+        val b = bottombar
+        bottombar.btn_like.setOnClickListener {
+            viewModel.handleLike()
+            Log.e("ArticleFragment", "bottombar click: ");
+        }
         bottombar.btn_bookmark.setOnClickListener { viewModel.handleBookmark() }
         bottombar.btn_share.setOnClickListener { viewModel.handleShare() }
         bottombar.btn_settings.setOnClickListener { viewModel.handleToggleMenu() }

@@ -25,10 +25,6 @@ class MarkdownContentView @JvmOverloads constructor(
     private lateinit var elements: List<MarkdownElement>
     private var layoutManager: LayoutManager = LayoutManager()
 
-
-    //for restore
-    private var ids = arrayListOf<Int>()
-
     var textSize by Delegates.observable(14f) { _, old, value ->
         if (value == old) return@observable
         this.children.forEach {
