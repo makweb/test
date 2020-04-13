@@ -35,7 +35,7 @@ fun View.setMarginOptionally(
         topMargin = top
         bottomMargin = bottom
     }
-    requestLayout()
+//    requestLayout()
 }
 
 fun BottomNavigationView.selectItem(itemId: Int?){

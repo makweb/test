@@ -216,5 +216,4 @@ data class ArticleState(
             searchPosition = savedState["searchPosition"] ?: 0
         )
     }
-
 }
