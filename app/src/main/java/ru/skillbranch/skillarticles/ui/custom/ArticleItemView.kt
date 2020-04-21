@@ -191,8 +191,8 @@ class ArticleItemView constructor(
         left = paddingLeft
 
         val rh = posterSize + categorySize / 2
-        if (rh > tv_title.height) {
-            val diffH = (rh - tv_title.height) / 2
+        if (rh > tv_title.measuredHeight) {
+            val diffH = (rh - tv_title.measuredHeight) / 2
             tv_title.layout(
                 left,
                 usedHeight + diffH,
@@ -214,8 +214,8 @@ class ArticleItemView constructor(
             )
             usedHeight += rh
         } else {
-            val diffH = (tv_title.height - rh) / 2
-            Log.e("ArticleItemView", "diff $diffH : $usedHeight ${tv_title.height} ${rh}");
+            val diffH = (tv_title.measuredHeight - rh) / 2
+            Log.e("ArticleItemView", "diff $diffH : $usedHeight ${tv_title.measuredHeight} ${rh}");
             tv_title.layout(
                 left,
                 usedHeight,
@@ -246,7 +246,7 @@ class ArticleItemView constructor(
         )
         usedHeight += tv_description.measuredHeight + defaultSpace
 
-        val fontDiff = iconSize - tv_likes_count.height
+        val fontDiff = iconSize - tv_likes_count.measuredHeight
         Log.e("ArticleItemView", "fontDiff: $fontDiff");
         iv_likes.layout(
             left,
@@ -292,24 +292,6 @@ class ArticleItemView constructor(
             left + bodyWidth,
             usedHeight + iconSize - fontDiff
         )
-        /*children.forEach {
-            if (it is MarkdownTextView) {
-                it.layout(
-                    left - paddingLeft / 2,
-                    usedHeight,
-                    r - paddingRight / 2,
-                    usedHeight + it.measuredHeight
-                )
-            } else {
-                it.layout(
-                    left,
-                    usedHeight,
-                    right,
-                    usedHeight + it.measuredHeight
-                )
-            }
-            usedHeight += it.measuredHeight
-        }*/
     }
 
     fun bind(item: ArticleItemData) {

@@ -69,15 +69,3 @@ dependencies {
     androidTestImplementation 'com.jraska.livedata:testing-ktx:1.1.1'
     androidTestImplementation "android.arch.core:core-testing:1.1.1"
 }
-
-tasks.withType(Test) {
-    testLogging {
-        exceptionFormat "full"
-        events "failed", "passed"
-        info.events = ["failed"]
-        showExceptions true
-        showCauses true
-        showStackTraces true
-        info.exceptionFormat = "full"
-    }
-}
