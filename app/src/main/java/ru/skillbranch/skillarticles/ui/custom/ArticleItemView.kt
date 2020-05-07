@@ -3,7 +3,6 @@ package ru.skillbranch.skillarticles.ui.custom
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Typeface
-import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
@@ -11,23 +10,21 @@ import androidx.core.view.setPadding
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
-import kotlinx.android.extensions.LayoutContainer
 import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.data.models.ArticleItemData
 import ru.skillbranch.skillarticles.extensions.attrValue
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
-import ru.skillbranch.skillarticles.extensions.format
 import ru.skillbranch.skillarticles.extensions.shortFormat
 import kotlin.math.max
 
 class ArticleItemView constructor(
     context: Context
-) : ViewGroup(context, null, 0), LayoutContainer {
+) : ViewGroup(context, null, 0) {
     private val iv_poster: ImageView
     private val iv_category: ImageView
     private val iv_likes: ImageView
     private val iv_comments: ImageView
-    private val iv_bookmark: ImageView
+    private val iv_bookmark: CheckableImageView
     private val tv_date: TextView
     private val tv_author: TextView
     private val tv_title: TextView
@@ -38,6 +35,7 @@ class ArticleItemView constructor(
 
     private val defaultPadding = context.dpToIntPx(16)
     private val defaultSpace = context.dpToIntPx(8)
+    private val cornerRadius = context.dpToIntPx(8)
     private val categorySize = context.dpToIntPx(40)
     private val posterSize = context.dpToIntPx(64)
     private val iconSize = context.dpToIntPx(16)
@@ -128,8 +126,7 @@ class ArticleItemView constructor(
         }
         addView(tv_read_duration)
 
-        iv_bookmark = ImageView(context).apply {
-            layoutParams = LayoutParams(iconSize, iconSize)
+        iv_bookmark = CheckableImageView(context).apply {
             imageTintList = ColorStateList.valueOf(grayColor)
             setImageResource(R.drawable.bookmark_states)
         }
@@ -189,55 +186,30 @@ class ArticleItemView constructor(
         left = paddingLeft
 
         val rh = posterSize + categorySize / 2
+        val leftTop = if (rh > tv_title.measuredHeight) (rh - tv_title.measuredHeight) / 2 else 0
+        val rightTop = if (rh < tv_title.measuredHeight) (tv_title.measuredHeight - rh) / 2 else 0
 
-
-
-        if (rh > tv_title.measuredHeight) {
-            val diffH = (rh - tv_title.measuredHeight) / 2
-            tv_title.layout(
-                left,
-                usedHeight + diffH,
-                left + tv_title.measuredWidth,
-                usedHeight + diffH + tv_title.measuredHeight
-            )
-            left = defaultPadding
-            iv_poster.layout(
-                left + bodyWidth - posterSize,
-                usedHeight,
-                left + bodyWidth,
-                usedHeight + posterSize
-            )
-            iv_category.layout(
-                iv_poster.left - categorySize / 2,
-                iv_poster.bottom - categorySize / 2,
-                iv_poster.left + categorySize / 2,
-                iv_poster.bottom + categorySize / 2
-            )
-            usedHeight += rh
-        } else {
-            val diffH = (tv_title.measuredHeight - rh) / 2
-            tv_title.layout(
-                left,
-                usedHeight,
-                left + tv_title.measuredWidth,
-                usedHeight + tv_title.measuredHeight
-            )
-            iv_poster.layout(
-                left + bodyWidth - posterSize,
-                usedHeight + diffH,
-                left + bodyWidth,
-                usedHeight + diffH + posterSize
-            )
-            iv_category.layout(
-                iv_poster.left - categorySize / 2,
-                iv_poster.bottom - categorySize / 2,
-                iv_poster.left + categorySize / 2,
-                iv_poster.bottom + categorySize / 2
-            )
-            usedHeight += tv_title.measuredHeight
-        }
-        left = defaultPadding
+        tv_title.layout(
+            left,
+            usedHeight + leftTop,
+            left + tv_title.measuredWidth,
+            usedHeight + leftTop + tv_title.measuredHeight
+        )
+        iv_poster.layout(
+            left + bodyWidth - posterSize,
+            usedHeight + rightTop,
+            left + bodyWidth,
+            usedHeight + rightTop + posterSize
+        )
+        iv_category.layout(
+            iv_poster.left - categorySize / 2,
+            iv_poster.bottom - categorySize / 2,
+            iv_poster.left + categorySize / 2,
+            iv_poster.bottom + categorySize / 2
+        )
+        usedHeight += if (rh > tv_title.measuredHeight) rh else tv_title.measuredHeight
         usedHeight += defaultSpace
+
         tv_description.layout(
             left,
             usedHeight,
@@ -293,8 +265,8 @@ class ArticleItemView constructor(
         )
     }
 
-    fun bind(item: ArticleItemData) {
-        val cornerRadius = containerView.context.dpToIntPx(8)
+    fun bind(item: ArticleItemData, toggleBookmarkListener: (String, Boolean) -> Unit) {
+
         tv_date.text = item.date.shortFormat()
         tv_author.text = item.author
         tv_title.text = item.title
@@ -305,7 +277,7 @@ class ArticleItemView constructor(
             .override(posterSize)
             .into(iv_poster)
 
-        Glide.with(containerView.context)
+        Glide.with(context)
             .load(item.categoryIcon)
             .transform(CenterCrop(), RoundedCorners(cornerRadius))
             .override(categorySize)
@@ -315,7 +287,7 @@ class ArticleItemView constructor(
         tv_likes_count.text = "${item.likeCount}"
         tv_comments_count.text = "${item.commentCount}"
         tv_read_duration.text = "${item.readDuration} min read"
+        iv_bookmark.isChecked = item.isBookmark
+        iv_bookmark.setOnClickListener { toggleBookmarkListener.invoke(item.id, item.isBookmark) }
     }
-
-    override val containerView: View = this
 }

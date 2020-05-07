@@ -1,6 +1,5 @@
 package ru.skillbranch.skillarticles.data
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.GlobalScope
@@ -111,9 +110,7 @@ object NetworkDataHolder {
         val commentsData = commentsData
             .getOrElse(articleId) { mutableListOf() }
 
-
-
-        val list = when {
+        return when {
             slug == null -> {
                 commentsData
                     .take(size)
@@ -132,20 +129,8 @@ object NetworkDataHolder {
                     .takeLast(abs(size))
             }
 
-            else -> emptyList<CommentItemData>()
+            else -> emptyList()
         }
-
-        Log.e("DataHolder", ": loadComments $slug ${list.size}");
-        return list
-
-
-        /*return commentsData
-            .drop(start)
-            .take(size)
-            .toList()
-            .apply {
-                Thread.sleep(1500)
-            }*/
     }
 }
 
