@@ -3,7 +3,6 @@ package ru.skillbranch.skillarticles.ui.custom
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Typeface
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -14,10 +13,11 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import kotlinx.android.extensions.LayoutContainer
 import ru.skillbranch.skillarticles.R
-import ru.skillbranch.skillarticles.data.ArticleItemData
+import ru.skillbranch.skillarticles.data.models.ArticleItemData
 import ru.skillbranch.skillarticles.extensions.attrValue
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
 import ru.skillbranch.skillarticles.extensions.format
+import ru.skillbranch.skillarticles.extensions.shortFormat
 import kotlin.math.max
 
 class ArticleItemView constructor(
@@ -168,10 +168,8 @@ class ArticleItemView constructor(
 
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        Log.e("MarkdownContentView", "onLayout: ");
         var usedHeight = paddingTop
         val bodyWidth = right - left - paddingLeft - paddingRight
-        Log.e("ArticleItemView", "bodyWidth: $bodyWidth");
         var left = paddingLeft
 
         tv_date.layout(
@@ -191,6 +189,9 @@ class ArticleItemView constructor(
         left = paddingLeft
 
         val rh = posterSize + categorySize / 2
+
+
+
         if (rh > tv_title.measuredHeight) {
             val diffH = (rh - tv_title.measuredHeight) / 2
             tv_title.layout(
@@ -215,7 +216,6 @@ class ArticleItemView constructor(
             usedHeight += rh
         } else {
             val diffH = (tv_title.measuredHeight - rh) / 2
-            Log.e("ArticleItemView", "diff $diffH : $usedHeight ${tv_title.measuredHeight} ${rh}");
             tv_title.layout(
                 left,
                 usedHeight,
@@ -247,7 +247,6 @@ class ArticleItemView constructor(
         usedHeight += tv_description.measuredHeight + defaultSpace
 
         val fontDiff = iconSize - tv_likes_count.measuredHeight
-        Log.e("ArticleItemView", "fontDiff: $fontDiff");
         iv_likes.layout(
             left,
             usedHeight - fontDiff,
@@ -296,7 +295,7 @@ class ArticleItemView constructor(
 
     fun bind(item: ArticleItemData) {
         val cornerRadius = containerView.context.dpToIntPx(8)
-        tv_date.text = item.date.format()
+        tv_date.text = item.date.shortFormat()
         tv_author.text = item.author
         tv_title.text = item.title
 

@@ -6,7 +6,6 @@ import android.graphics.*
 import android.os.Parcel
 import android.os.Parcelable
 import android.text.Spannable
-import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
@@ -229,7 +228,6 @@ class MarkdownImageView private constructor(
             linePositionY,
             linePaint
         )
-        Log.e("MarkdownImageView", "dr: ");
     }
 
     private fun animateShowAlt() {
