@@ -67,6 +67,13 @@ object EntityGenerator {
             acc
         }
 
+    fun createArticleItem(articleId: String): ArticleItemData {
+        return articleItems[articleId.toInt() % 6].copy(id = articleId,
+            commentCount = (10..40).random(),
+            readDuration = (2..10).random(),
+            likeCount = (15..100).random())
+    }
+
 }
 
 private val articleItems = Array(6) {

@@ -46,7 +46,7 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
     }
 
     private val commentsAdapter by lazy {
-        CommentsAdapter{
+        CommentsAdapter {
             Log.e("ArticleFragment", "click on comment: ${it.id} ${it.slug}");
             viewModel.handleReplyTo(it.slug, it.user.name)
             et_comment.requestFocus()
@@ -114,28 +114,29 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
         tv_date.text = args.date.format()
 
         et_comment.setOnEditorActionListener { view, _, _ ->
+            Log.e("ArticleFragment", "setOnEditorActionListener: ");
             root.hideKeyboard(view)
             viewModel.handleSendComment(view.text.toString())
-            view.text = null
-            view.clearFocus()
+//            view.text = null
+//            view.clearFocus()
             true
         }
 
         et_comment.setOnFocusChangeListener { _, hasFocus -> viewModel.handleCommentFocus(hasFocus) }
 
-        wrap_comments.setEndIconOnClickListener { view->
+        wrap_comments.setEndIconOnClickListener { view ->
             view.context.hideKeyboard(view)
             viewModel.handleClearComment()
-            et_comment.text = null
-            et_comment.clearFocus()
+//            et_comment.text = null
+//            et_comment.clearFocus()
         }
 
-        with(rv_comments){
+        with(rv_comments) {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = commentsAdapter
         }
 
-        viewModel.observeList(viewLifecycleOwner){commentsAdapter.submitList(it)}
+        viewModel.observeList(viewLifecycleOwner) { commentsAdapter.submitList(it) }
 
     }
 
@@ -166,8 +167,8 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
             menuItem.expandActionView()
             searchView.setQuery(binding.searchQuery, false)
 
-            if (binding.isFocusedSearch) searchView?.requestFocus()
-            else searchView?.clearFocus()
+            if (binding.isFocusedSearch) searchView.requestFocus()
+            else searchView.clearFocus()
         }
 
         menuItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
@@ -298,10 +299,15 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
 
         }
 
-        private var answerTo by RenderProp("Comment"){wrap_comments.hint = it}
-        private var isShowBottombar by RenderProp(true){
-            if(it) bottombar.show() else bottombar.hide()
-            if(submenu.isOpen) submenu.isVisible = it
+        private var answerTo by RenderProp("Comment") { wrap_comments.hint = it }
+        private var isShowBottombar by RenderProp(true) {
+            if (it) bottombar.show() else bottombar.hide()
+            if (submenu.isOpen) submenu.isVisible = it
+        }
+
+        private var comment by RenderProp("") {
+            et_comment.setText(it)
+            if (it.isBlank() && et_comment.hasFocus()) et_comment.clearFocus()
         }
 
         override val afterInflated: (() -> Unit)? = {
@@ -325,6 +331,7 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
 
         override fun bind(data: IViewModelState) {
             data as ArticleState
+            Log.e("ArticleFragment", "${data.commentText}: ");
             isLike = data.isLike
             isBookmark = data.isBookmark
             isShowMenu = data.isShowMenu
@@ -339,6 +346,7 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
             searchResults = data.searchResults
             answerTo = data.answerTo ?: "Comment"
             isShowBottombar = data.showBottomBar
+            comment = data.commentText ?: ""
         }
 
         override fun saveUi(outState: Bundle) {

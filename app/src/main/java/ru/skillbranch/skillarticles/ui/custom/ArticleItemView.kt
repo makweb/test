@@ -106,7 +106,6 @@ class ArticleItemView constructor(
 
 
         iv_comments = ImageView(context).apply {
-            layoutParams = LayoutParams(iconSize, iconSize)
             imageTintList = ColorStateList.valueOf(grayColor)
             setImageResource(R.drawable.ic_insert_comment_black_24dp)
         }
@@ -114,6 +113,7 @@ class ArticleItemView constructor(
         addView(iv_comments)
 
         tv_comments_count = TextView(context).apply {
+            id = R.id.tv_comments_count
             setTextColor(grayColor)
             textSize = 12f
         }
@@ -127,6 +127,7 @@ class ArticleItemView constructor(
         addView(tv_read_duration)
 
         iv_bookmark = CheckableImageView(context).apply {
+            id = R.id.iv_bookmark
             imageTintList = ColorStateList.valueOf(grayColor)
             setImageResource(R.drawable.bookmark_states)
         }

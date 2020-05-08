@@ -54,7 +54,7 @@ abstract class BaseViewModel<T : IViewModelState>(
         notifications.value = Event(content)
     }
 
-    open fun navigate(command:NavigationCommand){
+    open fun navigate(command: NavigationCommand) {
         navigation.value = Event(command)
     }
 
@@ -64,6 +64,7 @@ abstract class BaseViewModel<T : IViewModelState>(
      */
     fun observeState(owner: LifecycleOwner, onChanged: (newState: T) -> Unit) {
         state.observe(owner, Observer { onChanged(it!!) })
+
     }
 
     /***
@@ -76,7 +77,7 @@ abstract class BaseViewModel<T : IViewModelState>(
             EventObserver { onNotify(it) })
     }
 
-    fun observeNavigation(owner: LifecycleOwner, onNavigate: (command: NavigationCommand) -> Unit){
+    fun observeNavigation(owner: LifecycleOwner, onNavigate: (command: NavigationCommand) -> Unit) {
         navigation.observe(owner,
             EventObserver { onNavigate(it) })
     }
@@ -95,7 +96,7 @@ abstract class BaseViewModel<T : IViewModelState>(
         }
     }
 
-    fun saveState() {
+    open fun saveState() {
         currentState.save(handleState)
     }
 
@@ -158,7 +159,7 @@ sealed class Notify() {
 
 sealed class NavigationCommand() {
     data class To(
-        val destination:Int,
+        val destination: Int,
         val args: Bundle? = null,
         val options: NavOptions? = null,
         val extras: Navigator.Extras? = null
@@ -166,9 +167,9 @@ sealed class NavigationCommand() {
 
     data class StartLogin(
         val privateDestination: Int? = null
-    ): NavigationCommand()
+    ) : NavigationCommand()
 
     data class FinishLogin(
         val privateDestination: Int? = null
-    ): NavigationCommand()
+    ) : NavigationCommand()
 }
