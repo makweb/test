@@ -9,9 +9,7 @@ import kotlinx.coroutines.launch
 import ru.skillbranch.skillarticles.data.EntityGenerator.generateArticleItems
 import ru.skillbranch.skillarticles.data.EntityGenerator.generateComments
 import ru.skillbranch.skillarticles.data.models.*
-import java.lang.Thread.sleep
 import java.util.*
-import kotlin.math.abs
 
 object LocalDataHolder {
     private val articleInfo = MutableLiveData<ArticlePersonalInfo?>(null)
@@ -69,14 +67,6 @@ object NetworkDataHolder {
         }
     }
 
-    fun findArticlesItem(start: Int = 0, size: Int): List<ArticleItemData> {
-        return networkArticleItems.drop(start)
-            .take(size)
-            .apply {
-                sleep(100)
-            }
-    }
-
     fun loadArticleContent(articleId: String): LiveData<String?> {
         val content = MutableLiveData<String?>(null)
         GlobalScope.launch {
@@ -106,33 +96,6 @@ object NetworkDataHolder {
                 date = Date()
             )
         )
-    }
-
-    fun loadComments(slug: String?, size: Int, articleId: String): List<CommentItemData> {
-        val commentsData = commentsData
-            .getOrElse(articleId) { mutableListOf() }
-
-        return when {
-            slug == null -> {
-                commentsData
-                    .take(size)
-            }
-
-            size > 0 -> {
-                commentsData.dropWhile { it.slug != slug  }
-                    .drop(1)
-                    .take(size)
-            }
-
-            size < 0 -> {
-                commentsData
-                    .dropLastWhile { it.slug != slug }
-                    .dropLast(1)
-                    .takeLast(abs(size))
-            }
-
-            else -> emptyList()
-        }
     }
 }
 
