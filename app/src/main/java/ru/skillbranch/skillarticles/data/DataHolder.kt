@@ -24,6 +24,7 @@ object LocalDataHolder {
             val article = localArticleItems.find { it.id == articleId }
             localArticles[articleId] = MutableLiveData(EntityGenerator.generateArticle(article ?: EntityGenerator.createArticleItem(articleId)))
         }
+        Log.e("DataHolder", "findArticle: ");
         return localArticles[articleId]!!
     }
 
@@ -63,7 +64,7 @@ object NetworkDataHolder {
 
     val commentsData: Map<String, MutableList<CommentItemData>> by lazy {
         networkArticleItems.associate { article ->
-            article.id to generateComments(article.id, article.commentCount) as MutableList
+            article.id to generateComments(article.id, 50) as MutableList
         }
     }
 

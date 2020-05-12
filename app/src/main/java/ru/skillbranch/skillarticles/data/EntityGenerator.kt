@@ -36,7 +36,7 @@ object EntityGenerator {
             .mapIndexed { index, article ->
                 article.copy(
                     id = "$index",
-                    commentCount = (10..40).random(),
+                    commentCount = 100,
                     readDuration = (2..10).random(),
                     likeCount = (15..100).random(),
                     date = Date().add(-index, TimeUnits.DAY)
@@ -69,7 +69,7 @@ object EntityGenerator {
 
     fun createArticleItem(articleId: String): ArticleItemData {
         return articleItems[articleId.toInt() % 6].copy(id = articleId,
-            commentCount = (10..40).random(),
+            commentCount = 100,
             readDuration = (2..10).random(),
             likeCount = (15..100).random())
     }

@@ -49,7 +49,7 @@ object ArticleRepository {
             totalCount = totalCount
         )
 
-    private fun loadCommentsByRange(
+    fun loadCommentsByRange(
         slug: String?,
         size: Int,
         articleId: String
@@ -113,11 +113,18 @@ class CommentsDataSource(
         params: LoadInitialParams<String>,
         callback: LoadInitialCallback<CommentItemData>
     ) {
-        val result = itemProvider(
+        var result = itemProvider(
             params.requestedInitialKey,
-            if (params.requestedInitialKey != null) -params.requestedLoadSize else params.requestedLoadSize,
+            params.requestedLoadSize,
             articleId
         )
+        if(result.first.isEmpty()){
+            result = itemProvider(
+                params.requestedInitialKey,
+                -params.requestedLoadSize,
+                articleId
+            )
+        }
         Log.e(
             "ArticleRepository",
             "loadInitial: key > ${params.requestedInitialKey} size > ${result.first.size} totalCount > $totalCount pos > ${result.second}"

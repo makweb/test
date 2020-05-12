@@ -1,6 +1,7 @@
 package ru.skillbranch.skillarticles.viewmodels.article
 
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.*
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
@@ -37,7 +38,8 @@ class ArticleViewModel(
             .build()
     }
 
-    private val listData: LiveData<PagedList<CommentItemData>> =
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val listData: LiveData<PagedList<CommentItemData>> =
         Transformations.switchMap(getArticleData()) {
             buildPagedList(repository.allComments(articleId, it?.commentCount ?: 0))
         }
@@ -223,7 +225,7 @@ class ArticleViewModel(
         listData.observe(owner, Observer { onChanged(it) })
     }
 
-    private fun buildPagedList(
+    fun buildPagedList(
         dataFactory: CommentsDataFactory
     ): LiveData<PagedList<CommentItemData>> {
         return LivePagedListBuilder<String, CommentItemData>(
@@ -297,7 +299,7 @@ data class ArticleState(
     override fun restore(savedState: SavedStateHandle): ArticleState {
         //TODO restore state
         val value: Any? = savedState["commentText"]
-        Log.e("ArticleViewModel", "restore: $value");
+        Log.e("ArticleViewModel", "restore: ${savedState.get<String>("lastKey")}");
         return copy(
             isSearch = savedState["isSearch"] ?: false,
             searchQuery = savedState["searchQuery"],
