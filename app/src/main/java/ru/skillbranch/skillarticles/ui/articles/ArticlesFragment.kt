@@ -1,7 +1,6 @@
 package ru.skillbranch.skillarticles.ui.articles
 
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.widget.SearchView
@@ -93,15 +92,12 @@ class ArticlesFragment : BaseFragment<ArticlesViewModel>() {
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 viewModel.handleSearch(newText)
-                Log.e("ArticlesFragment", "onQueryTextChange: $newText");
                 return true
             }
         })
     }
 
     override fun onDestroyView() {
-        val sv = toolbar.menu.findItem(R.id.action_search)?.actionView as? SearchView
-        Log.e("ArticlesFragment", "onDestroyView search_view ${toolbar.search_view}: ");
         toolbar.search_view?.setOnQueryTextListener(null)
         super.onDestroyView()
 
@@ -133,17 +129,6 @@ class ArticlesFragment : BaseFragment<ArticlesViewModel>() {
             searchQuery = data.searchQuery
             isLoading = data.isLoading
         }
-
-       /* override fun restoreUi(savedState: Bundle?) {
-            Log.e("ArticlesFragment", "restore isFocusedSearch: ${toolbar.search_view?.hasFocus()}");
-            isFocusedSearch = savedState?.getBoolean(::isFocusedSearch.name) ?: false
-        }
-
-        override fun saveUi(outState: Bundle) {
-            Log.e("ArticlesFragment", "save isFocusedSearch: ${toolbar.search_view?.hasFocus()}");
-            outState.putBoolean(::isFocusedSearch.name, toolbar.search_view?.hasFocus() ?: false)
-        }
-*/
     }
 
 }

@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
 import android.util.AttributeSet
-import android.util.Log
 import android.util.SparseArray
 import android.view.View
 import android.view.ViewGroup
@@ -283,14 +282,11 @@ class MarkdownContentView @JvmOverloads constructor(
 
         constructor(parcel: Parcel) : this() {
             ids = parcel.createIntArray()!!.toMutableList()
-            Log.e("MarkdownContentView", "parcel: $ids.");
-//            ids = arr.toMutableList()
             container =
                 parcel.readSparseArray<Parcelable>(this::class.java.classLoader) as SparseArray<Parcelable>
         }
 
         override fun writeToParcel(parcel: Parcel, flags: Int) {
-            Log.e("MarkdownContentView", "write parcel: ${ids.size}.");
             parcel.writeIntArray(ids.toIntArray())
             parcel.writeSparseArray(container)
         }

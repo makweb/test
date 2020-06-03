@@ -1,6 +1,5 @@
 package ru.skillbranch.skillarticles.viewmodels.article
 
-import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.*
 import androidx.paging.LivePagedListBuilder
@@ -45,11 +44,9 @@ class ArticleViewModel(
         }
 
     init {
-        Log.e("ArticleViewModel", "init: ");
         //subscribe on mutable data
         subscribeOnDataSource(getArticleData()) { article, state ->
             article ?: return@subscribeOnDataSource null
-            Log.e("ArticleViewModel", "author: ${article.author}");
             state.copy(
                 shareLink = article.shareLink,
                 title = article.title,

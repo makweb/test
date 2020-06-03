@@ -5,7 +5,6 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.WindowManager
@@ -115,8 +114,6 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
             .build()
             .apply { start() }
 
-        Log.e("ArticleFragment", "width: ${iv_poster.width} ${iv_poster.measuredWidth}");
-        
         val posterShimmer =ShimmerDrawable.Builder()
             .setBaseColor(baseColor)
             .setHighlightColor(highlightColor)
@@ -367,7 +364,6 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
         }
 
         private var comment by RenderProp("") {
-            Log.e("ArticleFragment", "comment: $it");
             et_comment.setText(it)
             if (it.isBlank() && et_comment.hasFocus()) et_comment.clearFocus()
         }
@@ -407,7 +403,6 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
             searchResults = data.searchResults
             answerTo = data.answerTo ?: "Comment"
             isShowBottombar = data.showBottomBar
-            Log.e("ArticleFragment", "data: ${data.commentText}");
             comment = data.commentText ?: ""
         }
 

@@ -1,6 +1,5 @@
 package ru.skillbranch.skillarticles.data
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.GlobalScope
@@ -20,11 +19,9 @@ object LocalDataHolder {
 
     fun findArticle(articleId: String): LiveData<ArticleData?> {
         if (localArticles[articleId] == null) {
-            Log.e("DataHolder", "findArticle $articleId: ");
             val article = localArticleItems.find { it.id == articleId }
             localArticles[articleId] = MutableLiveData(EntityGenerator.generateArticle(article ?: EntityGenerator.createArticleItem(articleId)))
         }
-        Log.e("DataHolder", "findArticle: ");
         return localArticles[articleId]!!
     }
 

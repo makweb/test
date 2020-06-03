@@ -1,6 +1,5 @@
 package ru.skillbranch.skillarticles.data.repositories
 
-import android.util.Log
 import androidx.paging.DataSource
 import androidx.paging.PositionalDataSource
 import ru.skillbranch.skillarticles.data.LocalDataHolder
@@ -84,19 +83,11 @@ class ArticleDataSource(private val strategy: ArticleStrategy) :
         callback: LoadInitialCallback<ArticleItemData>
     ) {
         val result = strategy.getItems(params.requestedStartPosition, params.requestedLoadSize)
-        Log.e(
-            "ArticlesRepository",
-            "loadInitial ${strategy::class.java.name}: start > ${params.requestedStartPosition}  size > ${params.requestedLoadSize} resultSize > ${result.size}"
-        );
         callback.onResult(result, params.requestedStartPosition)
     }
 
     override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<ArticleItemData>) {
         val result = strategy.getItems(params.startPosition, params.loadSize)
-        Log.e(
-            "ArticlesRepository",
-            "loadRange: start > ${params.startPosition}  size > ${params.loadSize} resultSize > ${result.size}"
-        );
         callback.onResult(result)
     }
 }

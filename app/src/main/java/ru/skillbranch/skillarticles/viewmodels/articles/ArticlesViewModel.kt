@@ -114,13 +114,11 @@ class ArticlesViewModel(handle: SavedStateHandle) :
     }
 
     fun handleSearch(query: String?) {
-        Log.e("ArticlesViewModel", "handleSearch: $query");
         query ?: return
         updateState { it.copy(searchQuery = query) }
     }
 
     fun handleSearchMode(isSearch: Boolean) {
-        Log.e("ArticlesViewModel", "handleSearchMode $isSearch");
         updateState { it.copy(isSearch = isSearch) }
     }
 
