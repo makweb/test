@@ -28,24 +28,28 @@ class ArticlesViewModel(handle: SavedStateHandle) :
             .build()
     }
     private val listData = Transformations.switchMap(state) {
+        val searchFn = if (!it.isBookmark) repository::searchArticles
+        else repository::searchBookmarkedArticles
+
+        val defaultFn = if (!it.isBookmark) repository::allArticles
+        else repository::allBookmarked
+
         when {
             it.isSearch && !it.searchQuery.isNullOrBlank() -> buildPagedList(
-                repository.searchArticles(
-                    it.searchQuery
-                )
+                searchFn(it.searchQuery)
             )
-            else -> buildPagedList(repository.allArticles())
+            else -> buildPagedList(defaultFn())
         }
     }
 
-
     fun observeList(
         owner: LifecycleOwner,
+        isBookmark: Boolean = false,
         onChange: (list: PagedList<ArticleItemData>) -> Unit
     ) {
+        updateState { it.copy(isBookmark = isBookmark) }
         listData.observe(owner, Observer { onChange(it) })
     }
-
 
     private fun buildPagedList(
         dataFactory: ArticlesDataFactory
@@ -71,7 +75,6 @@ class ArticlesViewModel(handle: SavedStateHandle) :
     }
 
     private fun itemAtEndHandle(lastLoadArticle: ArticleItemData) {
-        Log.e("ArticlesViewModel", "itemAtEndHandle: ");
         viewModelScope.launch(Dispatchers.IO) {
             val items = repository.loadArticlesFromNetwork(
                 start = lastLoadArticle.id.toInt().inc(),
@@ -95,7 +98,6 @@ class ArticlesViewModel(handle: SavedStateHandle) :
     }
 
     private fun zeroLoadingHandle() {
-        Log.e("ArticlesViewModel", "zeroLoadingHandle: ");
         notify(Notify.TextMessage("Storage is empty"))
         viewModelScope.launch(Dispatchers.IO) {
             val items =
@@ -112,26 +114,27 @@ class ArticlesViewModel(handle: SavedStateHandle) :
     }
 
     fun handleSearch(query: String?) {
+        Log.e("ArticlesViewModel", "handleSearch: $query");
         query ?: return
         updateState { it.copy(searchQuery = query) }
     }
 
     fun handleSearchMode(isSearch: Boolean) {
+        Log.e("ArticlesViewModel", "handleSearchMode $isSearch");
         updateState { it.copy(isSearch = isSearch) }
     }
 
     fun handleToggleBookmark(id: String, isChecked: Boolean) {
-        Log.e("ArticlesViewModel", "handleToggleBookmark: ");
-        repository.updateBookmark(id, isChecked)
+        repository.updateBookmark(id, !isChecked)
         listData.value?.dataSource?.invalidate()
     }
-
 }
 
 data class ArticlesState(
     val isSearch: Boolean = false,
     val searchQuery: String? = null,
-    val isLoading: Boolean = true
+    val isLoading: Boolean = true,
+    val isBookmark: Boolean = false
 ) : IViewModelState
 
 

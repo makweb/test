@@ -65,7 +65,7 @@ object ArticlesRepository {
     fun updateBookmark(id: String, checked: Boolean) {
         val index = local.localArticleItems.indexOfFirst { it.id == id }
         if (index == -1) return
-        local.localArticleItems[index] = local.localArticleItems[index].copy(isBookmark = !checked)
+        local.localArticleItems[index] = local.localArticleItems[index].copy(isBookmark = checked)
     }
 
 
@@ -86,7 +86,7 @@ class ArticleDataSource(private val strategy: ArticleStrategy) :
         val result = strategy.getItems(params.requestedStartPosition, params.requestedLoadSize)
         Log.e(
             "ArticlesRepository",
-            "loadInitial: start > ${params.requestedStartPosition}  size > ${params.requestedLoadSize} resultSize > ${result.size}"
+            "loadInitial ${strategy::class.java.name}: start > ${params.requestedStartPosition}  size > ${params.requestedLoadSize} resultSize > ${result.size}"
         );
         callback.onResult(result, params.requestedStartPosition)
     }

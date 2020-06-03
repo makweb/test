@@ -49,38 +49,25 @@ object ArticleRepository {
             totalCount = totalCount
         )
 
-    fun loadCommentsByRange(
+    private fun loadCommentsByRange(
         slug: String?,
         size: Int,
         articleId: String
-    ): Pair<List<CommentItemData>, Int> {
+    ): List<CommentItemData> {
         val data = network.commentsData.getOrElse(articleId) { mutableListOf() }
         return when {
-            slug == null -> data.take(size) to 0
+            slug == null -> data.take(size)
 
-            size > 0 -> {
-                val res = data.dropWhile { it.slug != slug }
-                    .drop(1)
-                    .take(size)
+            size > 0 -> data.dropWhile { it.slug != slug }
+                .drop(1)
+                .take(size)
 
-                res to data.indexOfFirst { it.slug == slug }.inc()
-            }
+            size < 0 -> data
+                .dropLastWhile { it.slug != slug }
+                .dropLast(1)
+                .takeLast(abs(size))
 
-            size < 0 -> {
-                val res = data
-                    .dropLastWhile { it.slug != slug }
-                    .dropLast(1)
-                    .takeLast(abs(size))
-
-                Log.e(
-                    "ArticleRepository",
-                    "pos ${data.indexOfFirst { it.slug == slug }.minus(abs(size).inc())}: ${data.map { it.slug }} "
-                );
-                val pos = data.indexOfFirst { it.slug == slug }.minus(abs(size))
-                res to if (pos < 0) 0 else pos
-            }
-
-            else -> emptyList<CommentItemData>() to 0
+            else -> emptyList()
         }.apply { sleep(500) }
     }
 
@@ -94,7 +81,7 @@ object ArticleRepository {
 }
 
 class CommentsDataFactory(
-    private val itemProvider: (String?, Int, String) -> Pair<List<CommentItemData>, Int>,
+    private val itemProvider: (String?, Int, String) -> List<CommentItemData>,
     private val articleId: String,
     private val totalCount: Int
 ) : DataSource.Factory<String?, CommentItemData>() {
@@ -104,7 +91,7 @@ class CommentsDataFactory(
 }
 
 class CommentsDataSource(
-    private val itemProvider: (String?, Int, String) -> Pair<List<CommentItemData>, Int>,
+    private val itemProvider: (String?, Int, String) -> List<CommentItemData>,
     private val articleId: String,
     private val totalCount: Int
 ) : ItemKeyedDataSource<String, CommentItemData>() {
@@ -113,39 +100,30 @@ class CommentsDataSource(
         params: LoadInitialParams<String>,
         callback: LoadInitialCallback<CommentItemData>
     ) {
-        var result = itemProvider(
-            params.requestedInitialKey,
-            params.requestedLoadSize,
-            articleId
-        )
-        if(result.first.isEmpty()){
-            result = itemProvider(
-                params.requestedInitialKey,
-                -params.requestedLoadSize,
-                articleId
-            )
-        }
+        val result = itemProvider(params.requestedInitialKey, params.requestedLoadSize, articleId)
+
         Log.e(
             "ArticleRepository",
-            "loadInitial: key > ${params.requestedInitialKey} size > ${result.first.size} totalCount > $totalCount pos > ${result.second}"
+            "loadInitial: tc: $totalCount init key: ${params.requestedInitialKey} size: ${result.size}"
         );
+
         callback.onResult(
-            if (totalCount > 0) result.first else emptyList(),
-            result.second,
+            if (totalCount > 0) result else emptyList(),
+            0,
             totalCount
         )
     }
 
     override fun loadAfter(params: LoadParams<String>, callback: LoadCallback<CommentItemData>) {
         val result = itemProvider(params.key, params.requestedLoadSize, articleId)
-        Log.e("ArticleRepository", "loadAfter: key > ${params.key} size > ${result.first.size} ");
-        callback.onResult(result.first)
+        Log.e("ArticleRepository", "loadAfter: key: ${params.key} size : ${result.size}");
+        callback.onResult(result)
     }
 
     override fun loadBefore(params: LoadParams<String>, callback: LoadCallback<CommentItemData>) {
         val result = itemProvider(params.key, -params.requestedLoadSize, articleId)
-        Log.e("ArticleRepository", "loadBefore: key > ${params.key} size > ${result.first.size} ");
-        callback.onResult(result.first)
+        Log.e("ArticleRepository", "loadBefore: key: ${params.key} size : ${result.size}");
+        callback.onResult(result)
     }
 
     override fun getKey(item: CommentItemData): String = item.slug

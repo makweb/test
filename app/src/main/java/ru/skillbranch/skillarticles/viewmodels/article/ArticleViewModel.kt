@@ -128,7 +128,6 @@ class ArticleViewModel(
     }
 
     override fun handleLike() {
-        Log.e("ArticleViewModel", "handle like: ");
         val isLiked = currentState.isLike
         val toggleLike = {
             val info = currentState.toArticlePersonalInfo()
@@ -190,8 +189,9 @@ class ArticleViewModel(
     }
 
     override fun handleSendComment(comment: String?) {
-        if (currentState.commentText == null) {
+        if (comment == null) {
             notify(Notify.TextMessage("Comment must be not empty"))
+            return
         }
         updateState { it.copy(commentText = comment) }
         if (!currentState.isAuth) {
@@ -208,8 +208,7 @@ class ArticleViewModel(
                         it.copy(
                             answerTo = null,
                             answerToSlug = null,
-                            commentText = null,
-                            lastKey = null
+                            commentText = null
                         )
                     }
                 }
@@ -225,14 +224,13 @@ class ArticleViewModel(
         listData.observe(owner, Observer { onChanged(it) })
     }
 
-    fun buildPagedList(
+    private fun buildPagedList(
         dataFactory: CommentsDataFactory
     ): LiveData<PagedList<CommentItemData>> {
         return LivePagedListBuilder<String, CommentItemData>(
             dataFactory,
             listConfig
         )
-            .setInitialLoadKey(currentState.lastKey)
             .setFetchExecutor(Executors.newSingleThreadExecutor())
             .build()
     }
@@ -247,11 +245,6 @@ class ArticleViewModel(
 
     fun handleReplyTo(slug: String, name: String) {
         updateState { it.copy(answerToSlug = slug, answerTo = "Reply to $name") }
-    }
-
-    override fun saveState() {
-        updateState { it.copy(lastKey = listData.value?.lastKey as? String?) }
-        super.saveState()
     }
 
 }
@@ -281,32 +274,29 @@ data class ArticleState(
     val answerTo: String? = null,
     val answerToSlug: String? = null,
     val showBottomBar: Boolean = true,
-    val lastKey: String? = null,
     val commentText: String? = null
 
 ) : IViewModelState {
     override fun save(outState: SavedStateHandle) {
-        //TODO save state
-        Log.e("ArticleViewModel", "save State:lastKey $lastKey");
+
         outState.set("isSearch", isSearch)
         outState.set("searchQuery", searchQuery)
         outState.set("searchResults", searchResults)
         outState.set("searchPosition", searchPosition)
-        outState.set("lastKey", lastKey)
         outState.set("commentText", commentText)
+        outState.set("answerTo", answerTo)
+        outState.set("answerToSlug", answerToSlug)
     }
 
     override fun restore(savedState: SavedStateHandle): ArticleState {
-        //TODO restore state
-        val value: Any? = savedState["commentText"]
-        Log.e("ArticleViewModel", "restore: ${savedState.get<String>("lastKey")}");
         return copy(
             isSearch = savedState["isSearch"] ?: false,
             searchQuery = savedState["searchQuery"],
             searchResults = savedState["searchResults"] ?: emptyList(),
             searchPosition = savedState["searchPosition"] ?: 0,
-            lastKey = savedState["lastKey"],
-            commentText = savedState["commentText"]
+            commentText = savedState["commentText"],
+            answerTo = savedState["answerTo"],
+            answerToSlug = savedState["answerToSlug"]
         )
     }
 }

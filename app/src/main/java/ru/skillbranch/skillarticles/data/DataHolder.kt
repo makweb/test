@@ -64,7 +64,7 @@ object NetworkDataHolder {
 
     val commentsData: Map<String, MutableList<CommentItemData>> by lazy {
         networkArticleItems.associate { article ->
-            article.id to generateComments(article.id, 50) as MutableList
+            article.id to generateComments(article.id, article.commentCount) as MutableList
         }
     }
 
