@@ -23,16 +23,15 @@ class ShimmerDrawable private constructor(private val pattern: MutableList<Shape
         repeatCount = ValueAnimator.INFINITE
         interpolator = LinearInterpolator()
         duration = 3000
-        addUpdateListener {
-            invalidateSelf()
-        }
+        addUpdateListener { invalidateSelf() }
     }
     private val shaderMatrix = Matrix()
     private var offset = 0f
     private lateinit var boundsF: RectF
-    
+
     override fun draw(canvas: Canvas) {
-        offset = (shaderWidth?.toFloat())?.times(shimmerAnimator.animatedFraction) ?: bounds.width().times(shimmerAnimator.animatedFraction)
+        offset = (shaderWidth?.toFloat())?.times(shimmerAnimator.animatedFraction)
+            ?: bounds.width().times(shimmerAnimator.animatedFraction)
         shaderMatrix.reset()
         shaderMatrix.setTranslate(offset, 0f)
         shaderMatrix.postRotate(shimmerAngle)
@@ -96,7 +95,7 @@ class ShimmerDrawable private constructor(private val pattern: MutableList<Shape
         shimmerPaint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
     }
 
-    fun setShimmerWidth(width:Int?){
+    fun setShimmerWidth(width: Int?) {
         shaderWidth = width
         prepareShader()
     }
@@ -157,7 +156,7 @@ class ShimmerDrawable private constructor(private val pattern: MutableList<Shape
             return this
         }
 
-        fun setShimmerWidth(width:Int): Builder{
+        fun setShimmerWidth(width: Int): Builder {
             shimmerWidth = width
             return this
         }
@@ -250,7 +249,13 @@ class ShimmerDrawable private constructor(private val pattern: MutableList<Shape
                     )
                 }
             }
+            view.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+                override fun onViewDetachedFromWindow(v: View?) {
+                    drawable.stop()
+                }
 
+                override fun onViewAttachedToWindow(v: View?) {}
+            })
             return drawable
         }
 

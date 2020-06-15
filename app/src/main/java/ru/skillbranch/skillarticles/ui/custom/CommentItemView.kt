@@ -42,22 +42,15 @@ class CommentItemView(context: Context) : ViewGroup(context, null, 0) {
     }
 
     private val shimmerDrawable by lazy(LazyThreadSafetyMode.NONE) {
-     ShimmerDrawable.fromView(this).apply {
+        ShimmerDrawable.fromView(this).apply {
             setBaseColor(baseColor)
             setHighlightColor(dividerColor)
         }
     }
 
+
     init {
         setPadding(defaultHSpace, defaultVSpace, defaultHSpace, defaultVSpace)
-        addOnAttachStateChangeListener(object : OnAttachStateChangeListener {
-            override fun onViewDetachedFromWindow(v: View?) {}
-
-            override fun onViewAttachedToWindow(v: View?) {
-                shimmerDrawable.stop()
-            }
-
-        })
         tv_date = TextView(context).apply {
             setTextColor(grayColor)
             textSize = 12f
@@ -199,7 +192,7 @@ class CommentItemView(context: Context) : ViewGroup(context, null, 0) {
             val level = min(item.slug.split("/").size.dec(), 5)
             setPaddingOptionally(left = level * defaultHSpace)
 
-            if(foreground!=null){
+            if (foreground != null) {
                 shimmerDrawable.stop()
                 foreground = null
             }

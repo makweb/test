@@ -5,6 +5,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.WindowManager
@@ -102,11 +103,11 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
         val cornerRadius = root.dpToIntPx(8)
 
         val baseColor = root.getColor(R.color.color_gray_light)
-        val posterWidth =  resources.displayMetrics.widthPixels - root.dpToIntPx(32)
-        val posterHeight =  (posterWidth/16f*9).toInt()
+        val posterWidth = resources.displayMetrics.widthPixels - root.dpToIntPx(32)
+        val posterHeight = (posterWidth / 16f * 9).toInt()
         val highlightColor = requireContext().getColor(R.color.color_divider)
 
-        val avatarShimmer =ShimmerDrawable.Builder()
+        val avatarShimmer = ShimmerDrawable.Builder()
             .setBaseColor(baseColor)
             .setHighlightColor(highlightColor)
             .setShimmerWidth(posterWidth)
@@ -114,10 +115,16 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
             .build()
             .apply { start() }
 
-        val posterShimmer =ShimmerDrawable.Builder()
+        val posterShimmer = ShimmerDrawable.Builder()
             .setBaseColor(baseColor)
             .setHighlightColor(highlightColor)
-            .addShape(ShimmerDrawable.Shape.Rectangle(width = posterWidth, height = posterHeight, cornerRadius = cornerRadius))
+            .addShape(
+                ShimmerDrawable.Shape.Rectangle(
+                    width = posterWidth,
+                    height = posterHeight,
+                    cornerRadius = cornerRadius
+                )
+            )
             .build()
             .apply { start() }
 
@@ -129,7 +136,7 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
                     model: Any?,
                     target: Target<Drawable>?,
                     isFirstResource: Boolean
-                ): Boolean  = false
+                ): Boolean = false
 
                 override fun onResourceReady(
                     resource: Drawable?,
@@ -156,7 +163,7 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
                     model: Any?,
                     target: Target<Drawable>?,
                     isFirstResource: Boolean
-                ): Boolean  = false
+                ): Boolean = false
 
                 override fun onResourceReady(
                     resource: Drawable?,
@@ -303,7 +310,11 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
         var isFocusedSearch: Boolean = false
         var searchQuery: String? = null
 
-        private var isLoadingContent by RenderProp(true)
+        private var isLoadingContent by RenderProp(false) {
+            Log.e("ArticleFragment", "content is loading: $it");
+            tv_text_content.isLoading = it
+            if (it) setupCopyListener()
+        }
         private var isLike: Boolean by RenderProp(false) { bottombar.btn_like.isChecked = it }
         private var isBookmark: Boolean by RenderProp(false) {
             bottombar.btn_bookmark.isChecked = it
@@ -351,10 +362,7 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
         private var searchPosition: Int by RenderProp(0)
 
         private var content: List<MarkdownElement> by RenderProp(emptyList()) {
-            tv_text_content.isLoading = it.isEmpty()
             tv_text_content.setContent(it)
-            if (it.isNotEmpty()) setupCopyListener()
-
         }
 
         private var answerTo by RenderProp("Comment") { wrap_comments.hint = it }
@@ -414,5 +422,4 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
             isFocusedSearch = savedState?.getBoolean(::isFocusedSearch.name) ?: false
         }
     }
-
 }

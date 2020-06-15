@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
 import android.util.AttributeSet
+import android.util.Log
 import android.util.SparseArray
 import android.view.View
 import android.view.ViewGroup
@@ -11,7 +12,6 @@ import android.widget.TextView
 import androidx.core.util.isEmpty
 import androidx.core.view.ViewCompat
 import androidx.core.view.children
-import androidx.core.view.doOnLayout
 import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.data.repositories.MarkdownElement
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
@@ -36,75 +36,89 @@ class MarkdownContentView @JvmOverloads constructor(
         }
     }
     var isLoading by Delegates.observable(false) { _, _, newValue ->
+        Log.e("MarkdownContentView", "isLoading : $newValue");
         if (!newValue) hideShimmer()
         else showShimmer()
     }
     private val defaultSpace = context.dpToIntPx(8)
+    private val defaultPadding = context.dpToIntPx(16)
     private val lineHeight = context.dpToIntPx(14)
     private val miniLineHeight = context.dpToIntPx(12)
+    private val shimmerWidth = resources.displayMetrics.widthPixels - context.dpToIntPx(32)
 
     private val shimmerDrawable by lazy {
         ShimmerDrawable.Builder()
+            .setShimmerWidth(shimmerWidth)
             .addShape(
                 ShimmerDrawable.Shape.TextRow(
-                    width - 4 * defaultSpace,
+                    shimmerWidth,
                     6,
                     lineHeight = lineHeight,
                     lineSpace = defaultSpace,
                     cornerRadius = defaultSpace,
-                    offset = 2 * defaultSpace to 2 * defaultSpace
+                    offset = defaultPadding to defaultPadding
                 )
             )
             .addShape(
                 ShimmerDrawable.Shape.ImagePlaceholder(
-                    width - 4 * defaultSpace,
+                    shimmerWidth,
                     16 / 9f,
                     borderWidth = defaultSpace,
                     cornerRadius = defaultSpace,
-                    offset = 2 * defaultSpace to defaultSpace
+                    offset = defaultPadding to defaultSpace
                 )
             )
             .addShape(
                 ShimmerDrawable.Shape.TextRow(
-                    width - 14 * defaultSpace,
+                    shimmerWidth - 4 * defaultPadding,
                     1,
                     lineHeight = miniLineHeight,
                     lineSpace = defaultSpace / 2,
                     cornerRadius = defaultSpace,
-                    offset = 7 * defaultSpace to defaultSpace
+                    offset = 3 * defaultPadding to defaultSpace
                 )
             )
             .addShape(
                 ShimmerDrawable.Shape.TextRow(
-                    width - 4 * defaultSpace,
+                    shimmerWidth,
                     4,
                     lineHeight = lineHeight,
                     lineSpace = defaultSpace,
                     cornerRadius = defaultSpace,
-                    offset = 2 * defaultSpace to 2 * defaultSpace
+                    offset = defaultPadding to defaultPadding
                 )
             )
             .addShape(
                 ShimmerDrawable.Shape.Rectangle(
-                    width - 4 * defaultSpace,
+                    shimmerWidth ,
                     context.dpToIntPx(56),
                     cornerRadius = defaultSpace,
-                    offset = 2 * defaultSpace to defaultSpace
+                    offset = defaultPadding to defaultSpace
                 )
             )
             .addShape(
                 ShimmerDrawable.Shape.TextRow(
-                    width - 4 * defaultSpace,
+                    shimmerWidth,
                     4,
                     lineHeight = lineHeight,
                     lineSpace = defaultSpace,
-                    offset = 2 * defaultSpace to 2 * defaultSpace
+                    offset = defaultPadding to defaultPadding
                 )
             )
-            .itemPatternCount(4)
+            .itemPatternCount(3)
             .setBaseColor(context.getColor(R.color.color_gray_light))
             .setHighlightColor(context.getColor(R.color.color_divider))
             .build()
+    }
+
+    init {
+        addOnAttachStateChangeListener(object : OnAttachStateChangeListener {
+            override fun onViewDetachedFromWindow(v: View?) {
+                shimmerDrawable.stop()
+            }
+
+            override fun onViewAttachedToWindow(v: View?) {/*nothing*/}
+        })
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -265,15 +279,16 @@ class MarkdownContentView @JvmOverloads constructor(
     }
 
     private fun hideShimmer() {
+//        shimmerDrawable.stop()
         (foreground as? ShimmerDrawable)?.stop()
         foreground = null
     }
 
     private fun showShimmer() {
-        doOnLayout{
+//        shimmerListener = doOnPreDraw {
             foreground = shimmerDrawable
             shimmerDrawable.start()
-        }
+//        }
     }
 
     private class LayoutManager() : Parcelable {
