@@ -7,7 +7,7 @@ import java.util.*
 
 @Entity(tableName = "articles")
 data class Article(
-    @PrimaryKey
+    @PrimaryKey()
     val id: String,
     val title: String,
     val description: String,
@@ -52,7 +52,7 @@ data class ArticleItem(
     val poster: String,
     @ColumnInfo(name = "category_id")
     val categoryId: String,
-    val category: String ,
+    val category: String,
     @ColumnInfo(name = "category_icon")
     val categoryIcon: String,
     @ColumnInfo(name = "like_count")
@@ -65,7 +65,8 @@ data class ArticleItem(
     val isBookmark: Boolean = false
 )
 
-@DatabaseView("""
+@DatabaseView(
+    """
         SELECT id, article.title AS title, description, author_user_id, author_avatar, author_name, date, 
         category.category_id AS category_category_id, category.title AS category_title, category.icon AS category_icon,
         content.share_link AS share_link, content.content AS content,
@@ -74,7 +75,8 @@ data class ArticleItem(
         INNER JOIN article_categories AS category ON category.category_id = article.category_id
         LEFT JOIN article_contents AS content ON content.article_id = id
         LEFT JOIN article_personal_infos AS personal ON personal.article_id = id
-    """)
+    """
+)
 @TypeConverters(MarkdownConverter::class)
 data class ArticleFull(
     val id: String,
@@ -94,4 +96,39 @@ data class ArticleFull(
     val content: List<MarkdownElement>? = null
 //    val source: String? = null, //TODO implement me
 //    val tags: List<String>
+)
+
+data class ArticleWithContent(
+    val id: String,
+    val title: String,
+    val description: String,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "article_id"
+    )
+    val content: ArticleContent
+)
+
+data class CategoryWithArticles(
+    @Embedded
+    val category: Category,
+    @Relation(
+        parentColumn = "category_id",
+        entityColumn = "category_id"
+    )
+    val articles: List<Article>
+)
+
+
+data class ArticleWithShareLink(
+    val id: String,
+    val title: String,
+    val description: String,
+    @Relation(
+        entity = ArticleContent::class,
+        parentColumn = "id",
+        entityColumn = "article_id",
+        projection = ["share_link"]
+    )
+    val link: String
 )

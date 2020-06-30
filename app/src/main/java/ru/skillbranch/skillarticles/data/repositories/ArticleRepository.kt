@@ -8,7 +8,6 @@ import ru.skillbranch.skillarticles.data.NetworkDataHolder
 import ru.skillbranch.skillarticles.data.local.DbManager.db
 import ru.skillbranch.skillarticles.data.local.PrefManager
 import ru.skillbranch.skillarticles.data.local.entities.ArticleFull
-import ru.skillbranch.skillarticles.data.local.entities.ArticlePersonalInfo
 import ru.skillbranch.skillarticles.data.models.*
 import ru.skillbranch.skillarticles.extensions.data.toArticleContent
 import java.lang.Thread.sleep

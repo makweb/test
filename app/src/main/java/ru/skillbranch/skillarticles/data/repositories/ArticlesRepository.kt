@@ -2,7 +2,6 @@ package ru.skillbranch.skillarticles.data.repositories
 
 import androidx.lifecycle.LiveData
 import androidx.paging.DataSource
-import androidx.paging.PositionalDataSource
 import androidx.sqlite.db.SimpleSQLiteQuery
 import ru.skillbranch.skillarticles.data.NetworkDataHolder
 import ru.skillbranch.skillarticles.data.local.DbManager.db
@@ -14,7 +13,6 @@ import ru.skillbranch.skillarticles.data.remote.res.ArticleRes
 import ru.skillbranch.skillarticles.extensions.data.toArticle
 import ru.skillbranch.skillarticles.extensions.data.toArticleCounts
 import java.lang.StringBuilder
-import java.lang.Thread.sleep
 interface IArticlesRepository {
     fun loadArticlesFromNetwork(start: Int = 0, size: Int): List<ArticleRes>
     fun insertArticlesToDb(articles: List<ArticleRes>)

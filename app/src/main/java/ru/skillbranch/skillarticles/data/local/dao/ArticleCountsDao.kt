@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
-import ru.skillbranch.skillarticles.data.local.entities.Article
 import ru.skillbranch.skillarticles.data.local.entities.ArticleCounts
 
 @Dao
@@ -23,7 +22,7 @@ interface ArticleCountsDao : BaseDao<ArticleCounts> {
         SELECT * FROM article_counts
     """
     )
-    fun findArticleCounts(): List<ArticleCounts>
+    fun findArticleCounts(): LiveData<List<ArticleCounts>>
 
     @Query(
         """

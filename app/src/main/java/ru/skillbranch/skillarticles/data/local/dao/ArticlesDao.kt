@@ -2,11 +2,15 @@ package ru.skillbranch.skillarticles.data.local.dao
 
 import androidx.lifecycle.LiveData
 import androidx.paging.DataSource
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Query
+import androidx.room.RawQuery
+import androidx.room.Transaction
 import androidx.sqlite.db.SimpleSQLiteQuery
 import ru.skillbranch.skillarticles.data.local.entities.Article
 import ru.skillbranch.skillarticles.data.local.entities.ArticleFull
 import ru.skillbranch.skillarticles.data.local.entities.ArticleItem
+import ru.skillbranch.skillarticles.data.local.entities.ArticleWithShareLink
 
 @Dao
 interface ArticlesDao : BaseDao<Article>{
@@ -22,34 +26,31 @@ interface ArticlesDao : BaseDao<Article>{
     @Query("""
         SELECT * FROM articles
     """)
-    fun findArticles(): List<Article>
+    fun findArticles(): LiveData<List<Article>>
 
     @Query("""
         SELECT * FROM articles
         WHERE id = :id
     """)
-    fun findArticleById(id: String): Article
+    fun findArticleById(id: String): LiveData<Article>
 
     @Query("""
         SELECT * FROM ArticleItem
     """)
-    fun findArticleItems(): List<ArticleItem>
-
-    @Delete
-    fun delete(article: Article)
+    fun findArticleItems(): LiveData<List<ArticleItem>>
 
     @Query("""
         SELECT * FROM ArticleItem
         WHERE category_id IN (:categoryIds)
     """)
-    fun findArticleItemsByCategoryIds(categoryIds: List<String>): List<ArticleItem>
+    fun findArticleItemsByCategoryIds(categoryIds: List<String>): LiveData<List<ArticleItem>>
 
     @Query("""
         SELECT * FROM ArticleItem
         INNER JOIN article_tag_x_ref AS refs ON refs.a_id = id
         WHERE refs.t_id = :tag
     """)
-    fun findArticlesByTagId(tag: String): List<ArticleItem>
+    fun findArticlesByTagId(tag: String): LiveData<List<ArticleItem>>
 
 
     @RawQuery(observedEntities = [ArticleItem::class])
@@ -60,5 +61,18 @@ interface ArticlesDao : BaseDao<Article>{
         WHERE id = :articleId
     """)
     fun findFullArticle(articleId: String): LiveData<ArticleFull>
+
+    @Query("""
+        SELECT * FROM articles
+        WHERE id = :articleId
+    """)
+    fun findArticleWithShareLink(articleId:String) : ArticleWithShareLink
+
+    /* @Query("""
+         SELECT * FROM articles
+         WHERE id = :articleId
+     """)
+     fun findAuthorWithArticles(articleId:String) : AuthorWithArticles*/
+
 
 }
