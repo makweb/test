@@ -4,8 +4,8 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import ru.skillbranch.skillarticles.ui.dialogs.CategoryDataItem
 
 @Entity(tableName = "article_categories")
 data class Category(
@@ -29,8 +29,9 @@ data class CategoryData(
         parcel.readString()!!,
         parcel.readString()!!,
         parcel.readInt()
-    ) {
-    }
+    )
+
+    fun toCategoryDataItem(checked:Boolean = false) = CategoryDataItem(categoryId, icon, title, articlesCount, checked)
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(categoryId)

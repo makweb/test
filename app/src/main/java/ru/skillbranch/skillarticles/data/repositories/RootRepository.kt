@@ -5,7 +5,9 @@ import ru.skillbranch.skillarticles.data.local.PrefManager
 
 object RootRepository {
 
-    val preferences = PrefManager
-    fun isAuth() : LiveData<Boolean> = preferences.isAuth()
-    fun setAuth(auth:Boolean) = preferences.setAuth(auth)
+    private val preferences = PrefManager
+    fun isAuth(): LiveData<Boolean> = preferences.isAuthLiveData
+    fun setAuth(auth: Boolean) {
+        preferences.isAuth = auth
+    }
 }

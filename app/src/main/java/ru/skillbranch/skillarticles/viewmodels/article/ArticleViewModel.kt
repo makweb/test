@@ -54,7 +54,9 @@ class ArticleViewModel(
                 isBookmark = article.isBookmark,
                 isLike = article.isLike,
                 content = article.content ?: emptyList(),
-                isLoadingContent = article.content == null
+                isLoadingContent = article.content == null,
+                source = article.source,
+                hashtags = article.tags
             )
         }
 
@@ -249,7 +251,9 @@ data class ArticleState(
     val answerTo: String? = null,
     val answerToSlug: String? = null,
     val showBottomBar: Boolean = true,
-    val commentText: String? = null
+    val commentText: String? = null,
+    val source: String? = null, //источник контента
+    val hashtags: List<String> = emptyList()// хештеги контента
 
 ) : IViewModelState {
     override fun save(outState: SavedStateHandle) {

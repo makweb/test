@@ -5,7 +5,6 @@ import androidx.room.Dao
 import androidx.room.Query
 import ru.skillbranch.skillarticles.data.local.entities.Category
 import ru.skillbranch.skillarticles.data.local.entities.CategoryData
-import ru.skillbranch.skillarticles.data.local.entities.CategoryWithArticles
 
 @Dao
 interface CategoriesDao: BaseDao<Category> {
@@ -17,12 +16,4 @@ interface CategoriesDao: BaseDao<Category> {
         ORDER BY articles_count DESC
     """)
     fun findAllCategoriesData(): LiveData<List<CategoryData>>
-
-
-    @Query("""
-        SELECT * 
-        FROM article_categories
-        WHERE category_id = :id
-    """)
-    fun findCategoryWithArticles(id:String): List<CategoryWithArticles>
 }

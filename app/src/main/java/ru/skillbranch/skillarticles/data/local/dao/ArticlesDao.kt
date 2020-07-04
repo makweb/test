@@ -6,11 +6,10 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.room.Transaction
-import androidx.sqlite.db.SimpleSQLiteQuery
+import androidx.sqlite.db.SupportSQLiteQuery
 import ru.skillbranch.skillarticles.data.local.entities.Article
 import ru.skillbranch.skillarticles.data.local.entities.ArticleFull
 import ru.skillbranch.skillarticles.data.local.entities.ArticleItem
-import ru.skillbranch.skillarticles.data.local.entities.ArticleWithShareLink
 
 @Dao
 interface ArticlesDao : BaseDao<Article>{
@@ -54,25 +53,11 @@ interface ArticlesDao : BaseDao<Article>{
 
 
     @RawQuery(observedEntities = [ArticleItem::class])
-    fun findArticlesByRaw(simpleSQLiteQuery: SimpleSQLiteQuery): DataSource.Factory<Int, ArticleItem>
+    fun findArticlesByRaw(simpleSQLiteQuery: SupportSQLiteQuery): DataSource.Factory<Int, ArticleItem>
 
     @Query("""
         SELECT * FROM ArticleFull
         WHERE id = :articleId
     """)
     fun findFullArticle(articleId: String): LiveData<ArticleFull>
-
-    @Query("""
-        SELECT * FROM articles
-        WHERE id = :articleId
-    """)
-    fun findArticleWithShareLink(articleId:String) : ArticleWithShareLink
-
-    /* @Query("""
-         SELECT * FROM articles
-         WHERE id = :articleId
-     """)
-     fun findAuthorWithArticles(articleId:String) : AuthorWithArticles*/
-
-
 }

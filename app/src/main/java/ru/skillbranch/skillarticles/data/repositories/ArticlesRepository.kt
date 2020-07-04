@@ -1,10 +1,12 @@
 package ru.skillbranch.skillarticles.data.repositories
 
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData
 import androidx.paging.DataSource
 import androidx.sqlite.db.SimpleSQLiteQuery
 import ru.skillbranch.skillarticles.data.NetworkDataHolder
 import ru.skillbranch.skillarticles.data.local.DbManager.db
+import ru.skillbranch.skillarticles.data.local.dao.*
 import ru.skillbranch.skillarticles.data.local.entities.ArticleItem
 import ru.skillbranch.skillarticles.data.local.entities.ArticleTagXRef
 import ru.skillbranch.skillarticles.data.local.entities.CategoryData
@@ -12,12 +14,12 @@ import ru.skillbranch.skillarticles.data.local.entities.Tag
 import ru.skillbranch.skillarticles.data.remote.res.ArticleRes
 import ru.skillbranch.skillarticles.extensions.data.toArticle
 import ru.skillbranch.skillarticles.extensions.data.toArticleCounts
-import java.lang.StringBuilder
+
 interface IArticlesRepository {
     fun loadArticlesFromNetwork(start: Int = 0, size: Int): List<ArticleRes>
     fun insertArticlesToDb(articles: List<ArticleRes>)
     fun toggleBookmark(articleId: String)
-    fun findTags() : LiveData<List<String>>
+    fun findTags(): LiveData<List<String>>
     fun findCategoriesData(): LiveData<List<CategoryData>>
     fun rawQueryArticles(filter: ArticleFilter): DataSource.Factory<Int, ArticleItem>
     fun incrementTagUseCount(tag: String)
@@ -26,29 +28,44 @@ interface IArticlesRepository {
 object ArticlesRepository : IArticlesRepository {
 
     private val network = NetworkDataHolder
-    private val articlesDao = db.articlesDao()
-    private val articleCountsDao = db.articleCountsDao()
-    private val categoriesDao = db.categoriesDao()
-    private val tagsDao = db.tagsDao()
-    private val articlePersonalDao = db.articlePersonalInfos()
+    private var articlesDao = db.articlesDao()
+    private var articleCountsDao = db.articleCountsDao()
+    private var categoriesDao = db.categoriesDao()
+    private var tagsDao = db.tagsDao()
+    private var articlePersonalDao = db.articlePersonalInfosDao()
+
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    fun setupTestDao(
+        articlesDao: ArticlesDao,
+        articleCountsDao: ArticleCountsDao,
+        categoriesDao: CategoriesDao,
+        tagsDao: TagsDao,
+        articlePersonalDao: ArticlePersonalInfosDao
+    ) {
+        this.articlesDao = articlesDao
+        this.articleCountsDao = articleCountsDao
+        this.categoriesDao = categoriesDao
+        this.tagsDao = tagsDao
+        this.articlePersonalDao = articlePersonalDao
+    }
 
     override fun loadArticlesFromNetwork(start: Int, size: Int): List<ArticleRes> =
         network.findArticlesItem(start, size)
 
     override fun insertArticlesToDb(articles: List<ArticleRes>) {
-        articlesDao.upsert(articles.map{it.data.toArticle()})
-        articleCountsDao.upsert(articles.map{it.counts.toArticleCounts()})
+        articlesDao.upsert(articles.map { it.data.toArticle() })
+        articleCountsDao.upsert(articles.map { it.counts.toArticleCounts() })
 
         val refs = articles.map { it.data }
-            .fold(mutableListOf<Pair<String, String>>()){ acc, res ->
-                acc.also { list -> list.addAll(res.tags.map{res.id to it}) }
+            .fold(mutableListOf<Pair<String, String>>()) { acc, res ->
+                acc.also { list -> list.addAll(res.tags.map { res.id to it }) }
             }
 
         val tags = refs.map { it.second }
             .distinct()
             .map { Tag(it) }
 
-        val categories = articles.map{it.data.category}
+        val categories = articles.map { it.data.category }
 
         categoriesDao.insert(categories)
         tagsDao.insert(tags)
@@ -68,7 +85,7 @@ object ArticlesRepository : IArticlesRepository {
     }
 
     override fun rawQueryArticles(filter: ArticleFilter): DataSource.Factory<Int, ArticleItem> {
-        return articlesDao.findArticlesByRaw(SimpleSQLiteQuery( filter.toQuery()))
+        return articlesDao.findArticlesByRaw(SimpleSQLiteQuery(filter.toQuery()))
     }
 
     override fun incrementTagUseCount(tag: String) {

@@ -1,14 +1,20 @@
 package ru.skillbranch.skillarticles.data.repositories
 
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.paging.DataSource
 import androidx.paging.ItemKeyedDataSource
 import ru.skillbranch.skillarticles.data.NetworkDataHolder
 import ru.skillbranch.skillarticles.data.local.DbManager.db
 import ru.skillbranch.skillarticles.data.local.PrefManager
+import ru.skillbranch.skillarticles.data.local.dao.ArticleContentsDao
+import ru.skillbranch.skillarticles.data.local.dao.ArticleCountsDao
+import ru.skillbranch.skillarticles.data.local.dao.ArticlePersonalInfosDao
+import ru.skillbranch.skillarticles.data.local.dao.ArticlesDao
 import ru.skillbranch.skillarticles.data.local.entities.ArticleFull
-import ru.skillbranch.skillarticles.data.models.*
+import ru.skillbranch.skillarticles.data.models.AppSettings
+import ru.skillbranch.skillarticles.data.models.CommentItemData
+import ru.skillbranch.skillarticles.data.models.User
 import ru.skillbranch.skillarticles.extensions.data.toArticleContent
 import java.lang.Thread.sleep
 import kotlin.math.abs
@@ -18,7 +24,7 @@ interface IArticleRepository {
     fun getAppSettings(): LiveData<AppSettings>
     fun toggleLike(articleId: String)
     fun toggleBookmark(articleId: String)
-    fun isAuth(): MutableLiveData<Boolean>
+    fun isAuth(): LiveData<Boolean>
     fun loadCommentsByRange(slug: String?, size: Int, articleId: String): List<CommentItemData>
     fun sendMessage(articleId: String, text: String, answerToSlug: String?)
     fun loadAllComments(articleId: String, total: Int): CommentsDataFactory
@@ -32,16 +38,29 @@ interface IArticleRepository {
 object ArticleRepository : IArticleRepository {
     private val network = NetworkDataHolder
     private val preferences = PrefManager
-    private val articlesDao = db.articlesDao()
-    private val articlePersonalDao = db.articlePersonalInfos()
-    private val articleCountsDao = db.articleCountsDao()
-    private val articleContentDao = db.articleContentsDao()
+    private var articlesDao = db.articlesDao()
+    private var articlePersonalDao = db.articlePersonalInfosDao()
+    private var articleCountsDao = db.articleCountsDao()
+    private var articleContentDao = db.articleContentsDao()
+
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    fun setupTestDao(
+        articlesDao:ArticlesDao,
+        articlePersonalDao:ArticlePersonalInfosDao,
+        articleCountsDao:ArticleCountsDao,
+        articleContentDao:ArticleContentsDao
+    ) {
+        this.articlesDao = articlesDao
+        this.articlePersonalDao = articlePersonalDao
+        this.articleCountsDao = articleCountsDao
+        this.articleContentDao = articleContentDao
+    }
 
     override fun findArticle(articleId: String): LiveData<ArticleFull> {
         return articlesDao.findFullArticle(articleId)
     }
 
-    override fun getAppSettings(): LiveData<AppSettings> = preferences.getAppSettings() //from preferences
+    override fun getAppSettings(): LiveData<AppSettings> = preferences.appSettings //from preferences
 
     override fun toggleLike(articleId: String) {
         articlePersonalDao.toggleLikeOrInsert(articleId)
@@ -51,8 +70,8 @@ object ArticleRepository : IArticleRepository {
         articlePersonalDao.toggleBookmarkOrInsert(articleId)
     }
 
-    override fun updateSettings(appSettings: AppSettings) {
-        //TODO implement me
+    override fun updateSettings(settings: AppSettings) {
+        preferences.updateSettings(settings)
     }
 
     override fun fetchArticleContent(articleId: String) {
@@ -64,7 +83,7 @@ object ArticleRepository : IArticleRepository {
         return articleCountsDao.getCommentsCount(articleId)
     }
 
-    override fun isAuth(): MutableLiveData<Boolean> = preferences.isAuth()
+    override fun isAuth(): LiveData<Boolean> = preferences.isAuthLiveData
 
     override fun loadAllComments(articleId: String, totalCount: Int) =
         CommentsDataFactory(
