@@ -71,7 +71,8 @@ object ArticleRepository : IArticleRepository {
     }
 
     override fun updateSettings(settings: AppSettings) {
-        preferences.updateSettings(settings)
+        preferences.isBigText = settings.isBigText
+        preferences.isDarkMode = settings.isDarkMode
     }
 
     override fun fetchArticleContent(articleId: String) {
@@ -83,7 +84,7 @@ object ArticleRepository : IArticleRepository {
         return articleCountsDao.getCommentsCount(articleId)
     }
 
-    override fun isAuth(): LiveData<Boolean> = preferences.isAuthLiveData
+    override fun isAuth(): LiveData<Boolean> = preferences.isAuthLive
 
     override fun loadAllComments(articleId: String, totalCount: Int) =
         CommentsDataFactory(

@@ -31,7 +31,7 @@ data class CategoryData(
         parcel.readInt()
     )
 
-    fun toCategoryDataItem(checked:Boolean = false) = CategoryDataItem(categoryId, icon, title, articlesCount, checked)
+
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(categoryId)

@@ -11,19 +11,18 @@ import androidx.annotation.Px
 import androidx.annotation.VisibleForTesting
 
 class IconLinkSpan(
-    private val linkDrawable: Drawable,
-    @Px
-    private val padding: Float,
-    @ColorInt
-    private val textColor: Int,
+    val linkDrawable: Drawable,
+    @Px val padding: Float = 16f,
+    @ColorInt val textColor: Int,
     dotWidth: Float = 6f
 ) : ReplacementSpan() {
-
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var iconSize = 0
+
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var textWidth = 0f
     private val dashs = DashPathEffect(floatArrayOf(dotWidth, dotWidth), 0f)
+
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var path = Path()
 
@@ -38,7 +37,10 @@ class IconLinkSpan(
         bottom: Int,
         paint: Paint
     ) {
+
+//        Log.e("IconLinkSpan", "draw: ");
         val textStart = x + iconSize + padding
+
         paint.forLine {
             path.reset()
             path.moveTo(textStart, y + paint.descent())
@@ -47,9 +49,11 @@ class IconLinkSpan(
         }
 
         canvas.save()
-        val trY = y + paint.descent() - linkDrawable.bounds.bottom
-        canvas.translate(x + padding/2f, trY)
+        val transY = y + paint.descent() - linkDrawable.bounds.bottom
+//        paint.forIcon {
+        canvas.translate(x + padding / 2f, transY.toFloat())
         linkDrawable.draw(canvas)
+//        }
         canvas.restore()
 
         paint.forText {
@@ -65,41 +69,51 @@ class IconLinkSpan(
         end: Int,
         fm: Paint.FontMetricsInt?
     ): Int {
-
+//        Log.e("IconLinkSpan", "getSize: ");
         if (fm != null) {
-            iconSize = fm.descent - fm.ascent //fontSize
+//            fm.top = fm.ascent
+            iconSize = fm.descent - fm.ascent
+        }
+        if (iconSize != 0) {
             linkDrawable.setBounds(0, 0, iconSize, iconSize)
         }
+
+//        linkDrawable.invalidateSelf()
         textWidth = paint.measureText(text.toString(), start, end)
         return (iconSize + padding + textWidth).toInt()
     }
 
-
     private inline fun Paint.forLine(block: () -> Unit) {
-        val oldColor = color
         val oldStyle = style
         val oldWidth = strokeWidth
 
+        strokeWidth = 0f
+        style = Paint.Style.STROKE
         pathEffect = dashs
         color = textColor
-        style = Paint.Style.STROKE
-        strokeWidth = 0f
 
         block()
 
-        color = oldColor
-        style = oldStyle
+        pathEffect = null
         strokeWidth = oldWidth
+        style = oldStyle
+    }
+
+    private inline fun Paint.forIcon(block: () -> Unit) {
+        val oldStyle = style
+        val oldColor = color
+
+        style = Paint.Style.FILL
+
+        block()
+        style = oldStyle
+        color = oldColor
     }
 
     private inline fun Paint.forText(block: () -> Unit) {
         val oldColor = color
-
         color = textColor
-
         block()
-
         color = oldColor
     }
-
 }
