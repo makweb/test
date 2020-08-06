@@ -29,7 +29,9 @@ class CategoryVH(override val containerView: View, val listener: (String, Boolea
     RecyclerView.ViewHolder(containerView), LayoutContainer {
 
     fun bind(item: CategoryDataItem) {
+        //remove listener
         ch_select.setOnCheckedChangeListener(null)
+        //bind data
         ch_select.isChecked = item.isChecked
         Glide.with(containerView.context)
             .load(item.icon)
@@ -38,6 +40,8 @@ class CategoryVH(override val containerView: View, val listener: (String, Boolea
             .into(iv_icon)
         tv_category.text = item.title
         tv_count.text = "${item.articlesCount}"
+
+        //set listeners
         ch_select.setOnCheckedChangeListener { _, checked -> listener(item.categoryId, checked) }
         itemView.setOnClickListener { ch_select.toggle() }
     }

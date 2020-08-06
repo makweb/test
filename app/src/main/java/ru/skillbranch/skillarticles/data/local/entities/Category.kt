@@ -5,7 +5,6 @@ import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import ru.skillbranch.skillarticles.ui.dialogs.CategoryDataItem
 
 @Entity(tableName = "article_categories")
 data class Category(

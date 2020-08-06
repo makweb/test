@@ -1,15 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<!--<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/refresh"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent">-->
+
+
+<androidx.core.widget.NestedScrollView
     android:id="@+id/scroll"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:focusableInTouchMode="true"
+    android:focusable="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constrain"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:focusableInTouchMode="true">
+        android:focusableInTouchMode="true"
+        android:focusable="true"
+        android:focusedByDefault="true">
 
         <TextView
             android:id="@+id/tv_date"
@@ -88,6 +103,7 @@
             android:focusableInTouchMode="true"
             android:padding="16dp"
             android:minHeight="1950dp"
+            tools:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/iv_poster" />
@@ -118,12 +134,12 @@
             android:id="@+id/wrap_comments"
             style="@style/Base.Widget.MaterialComponents.TextInputLayout"
             android:layout_width="0dp"
+            android:focusableInTouchMode="true"
             android:layout_height="wrap_content"
             android:background="?attr/colorSurface"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
             android:hint="Comment"
             android:padding="16dp"
+            android:focusable="false"
             android:theme="@style/TextInputLayoutAppearance"
             app:endIconDrawable="@drawable/ic_close_black_24dp"
             app:endIconMode="custom"
@@ -158,3 +174,4 @@
 
 
 </androidx.core.widget.NestedScrollView>
+<!--</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>-->

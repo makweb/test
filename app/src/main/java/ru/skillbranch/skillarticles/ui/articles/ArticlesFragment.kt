@@ -26,6 +26,7 @@ import ru.skillbranch.skillarticles.ui.delegates.RenderProp
 import ru.skillbranch.skillarticles.viewmodels.articles.ArticlesState
 import ru.skillbranch.skillarticles.viewmodels.articles.ArticlesViewModel
 import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
+import ru.skillbranch.skillarticles.viewmodels.base.Loading
 import ru.skillbranch.skillarticles.viewmodels.base.NavigationCommand
 
 class ArticlesFragment : BaseFragment<ArticlesViewModel>() {
@@ -152,6 +153,11 @@ class ArticlesFragment : BaseFragment<ArticlesViewModel>() {
         super.onDestroyView()
     }
 
+    override fun renderLoading(loadingState: Loading) {
+        super.renderLoading(loadingState)
+        if(loadingState == Loading.HIDE_LOADING && refresh.isRefreshing) refresh.isRefreshing = false
+    }
+
     override fun setupViews() {
         with(rv_articles) {
             layoutManager = LinearLayoutManager(context)
@@ -169,6 +175,10 @@ class ArticlesFragment : BaseFragment<ArticlesViewModel>() {
 
         viewModel.observeCategories(viewLifecycleOwner) {
             binding.categories = it
+        }
+
+        refresh.setOnRefreshListener {
+            viewModel.refresh()
         }
     }
 

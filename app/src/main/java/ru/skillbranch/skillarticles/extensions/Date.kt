@@ -2,6 +2,8 @@ package ru.skillbranch.skillarticles.extensions
 
 import java.text.SimpleDateFormat
 import java.util.*
+
+
 const val SECOND = 1000L
 const val MINUTE = 60 * SECOND
 const val HOUR = 60 * MINUTE
@@ -26,7 +28,7 @@ fun Date.add(value: Int, units: TimeUnits = TimeUnits.SECOND): Date {
 }
 
 fun Date.humanizeDiff(date: Date = Date()): String {
-    val diff = date.time - this.time;
+    val diff = date.toUTC().time - this.time;
     val seconds = (diff / 1000)
     val minutes = (seconds / 60)
     val hours = (minutes / 60)
@@ -41,8 +43,14 @@ fun Date.humanizeDiff(date: Date = Date()): String {
         in 75 * MINUTE..22 * HOUR -> "$hours hour ago"
         in 22 * HOUR..26 * HOUR -> "one day ago"
         in 26 * HOUR..360 * DAY -> "$days days ago"
-        else -> "more than a year ago"
+        else -> "just now"
     }
+}
+
+fun Date.toUTC():Date{
+    var datems = this.time
+    datems -= TimeZone.getDefault().getOffset(datems).toLong()
+    return Date(datems)
 }
 
 fun Date.shortFormat(): String {
