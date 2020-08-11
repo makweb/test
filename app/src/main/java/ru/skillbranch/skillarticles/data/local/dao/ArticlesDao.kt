@@ -60,4 +60,9 @@ interface ArticlesDao : BaseDao<Article>{
         WHERE id = :articleId
     """)
     fun findFullArticle(articleId: String): LiveData<ArticleFull>
+
+    @Query("""
+        SELECT id FROM articles ORDER BY date DESC LIMIT 1
+    """)
+    suspend fun findLastArticleId(): String?
 }

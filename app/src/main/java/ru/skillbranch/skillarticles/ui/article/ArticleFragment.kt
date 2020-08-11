@@ -5,7 +5,6 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.WindowManager
@@ -26,6 +25,7 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions.circleCropTransform
 import com.bumptech.glide.request.target.Target
 import com.google.android.material.appbar.AppBarLayout
+import kotlinx.android.synthetic.main.activity_root.*
 import kotlinx.android.synthetic.main.fragment_article.*
 import kotlinx.android.synthetic.main.layout_bottombar.view.*
 import kotlinx.android.synthetic.main.layout_submenu.view.*
@@ -96,8 +96,14 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
     }
 
     override fun renderLoading(loadingState: Loading) {
-        super.renderLoading(loadingState)
-//        if(loadingState == Loading.HIDE_LOADING && refresh.isRefreshing) refresh.isRefreshing = false
+        when(loadingState){
+            Loading.SHOW_LOADING -> if(!refresh.isRefreshing) root.progress.isVisible = true
+            Loading.SHOW_BLOCKING_LOADING -> root.progress.isVisible = false
+            Loading.HIDE_LOADING ->{
+                root.progress.isVisible = false
+                if(refresh.isRefreshing) refresh.isRefreshing = false
+            }
+        }
     }
 
     override fun setupViews() {
@@ -195,12 +201,8 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
         tv_date.text = args.date.format()
 
         et_comment.setOnEditorActionListener { view, _, _ ->
-//            view.clearFocus()
             root.hideKeyboard(view)
             viewModel.handleSendComment(view.text.toString())
-//            viewModel.testInvalidate()
-            et_comment.text = null
-            et_comment.clearFocus()
             true
         }
 
@@ -209,23 +211,18 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
         wrap_comments.setEndIconOnClickListener { view ->
             view.context.hideKeyboard(view)
             viewModel.handleClearComment()
-            et_comment.text = null
-            et_comment.clearFocus()
         }
 
-        /*refresh.setOnRefreshListener {
+        refresh.setOnRefreshListener {
             viewModel.refresh()
-        }*/
+        }
 
         with(rv_comments) {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = commentsAdapter
         }
 
-        viewModel.observeList(viewLifecycleOwner) {
-            commentsAdapter.submitList(it)
-        }
-
+        viewModel.observeList(viewLifecycleOwner) { commentsAdapter.submitList(it) }
     }
 
     override fun onDestroyView() {
@@ -381,7 +378,6 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
         private var searchPosition: Int by RenderProp(0)
 
         private var content: List<MarkdownElement> by RenderProp(emptyList()) {
-            Log.e("ArticleFragment", "set content: ");
             tv_text_content.setContent(it)
         }
 
@@ -392,33 +388,8 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
         }
 
         private var comment by RenderProp("") {
-            /*Log.e("ArticleFragment", "$it ${scroll.scrollY} et has focus: ${et_comment.hasFocus()} ${wrap_comments.hasFocus()} ${root.currentFocus}");
-
             et_comment.setText(it)
-            if (it.isBlank() && (et_comment.hasFocus() || wrap_comments.hasFocus())) {
-                Log.e("ArticleFragment", "clear focus: ${rv_comments.top}");
-//                scroll.requestFocus()
-//                et_comment.clearFocus()
-//                val v = wrap_comments.focusedChild
-//                wrap_comments.clearFocus()
-//                rv_comments.requestFocus()
-                *//*scroll.doOnNextLayout {
-                    scroll.smoothScrollTo(0 , rv_comments.top)
-                }*//*
-               *//* Handler().postDelayed({
-                    Log.e("ArticleFragment", "runnable: ${rv_comments.top}");
-
-                }, 5000)*//*
-
-            }
-
-
-            val wr = wrap_comments
-            Log.e("ArticleFragment", "${scroll.scrollY} after et has focus: ${et_comment.hasFocus()} ${wrap_comments.hasFocus()} ${root.currentFocus}");
-
-
-
-*/
+            if (it.isBlank() && et_comment.hasFocus()) et_comment.clearFocus()
         }
 
         private var hashtags: List<String> by RenderProp(emptyList()) {
@@ -463,8 +434,6 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
         }
 
         override fun bind(data: IViewModelState) {
-
-//            Log.e("ArticleFragment", " bind data $data: ");
             data as ArticleState
             isLike = data.isLike
             isBookmark = data.isBookmark
@@ -478,9 +447,9 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
             searchQuery = data.searchQuery
             searchPosition = data.searchPosition
             searchResults = data.searchResults
-//            answerTo = data.answerTo ?: "Comment"
+            answerTo = data.answerTo ?: "Comment"
             isShowBottombar = data.showBottomBar
-//            comment = data.commentText ?: ""
+            comment = data.commentText ?: ""
             hashtags = data.hashtags
             if (data.source != null) source = data.source
         }

@@ -1,5 +1,7 @@
 package ru.skillbranch.skillarticles.viewmodels.base
 
+//import ru.skillbranch.skillarticles.data.remote.err.ApiError
+//import ru.skillbranch.skillarticles.data.remote.err.NoNetworkError
 import android.os.Bundle
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting

@@ -227,11 +227,6 @@ class ArticleViewModel(
     fun handleReplyTo(messageId: String, name: String) {
         updateState { it.copy(answerToMessageId = messageId, answerTo = "Reply to $name") }
     }
-
-    fun testInvalidate() {
-        listData.value?.dataSource?.invalidate()
-    }
-
 }
 
 data class ArticleState(

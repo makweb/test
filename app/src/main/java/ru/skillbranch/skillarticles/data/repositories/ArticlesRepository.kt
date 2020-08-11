@@ -28,10 +28,9 @@ interface IArticlesRepository {
 }
 
 object ArticlesRepository : IArticlesRepository {
-
     private val network = NetworkManager.api
     private var articlesDao = db.articlesDao()
-    private var articleContentsDao = db.articleContentsDao()
+    private var articlesContentDao = db.articleContentsDao()
     private var articleCountsDao = db.articleCountsDao()
     private var categoriesDao = db.categoriesDao()
     private var tagsDao = db.tagsDao()
@@ -52,12 +51,11 @@ object ArticlesRepository : IArticlesRepository {
         this.articlePersonalDao = articlePersonalDao
     }
 
-    override suspend fun loadArticlesFromNetwork(start: String?, size: Int) : Int {
+    override suspend fun loadArticlesFromNetwork(start: String?, size: Int): Int {
         val items = network.articles(start, size)
-        if(items.isNotEmpty()) insertArticlesToDb(items)
+        if (items.isNotEmpty()) insertArticlesToDb(items)
         return items.size
     }
-
 
     override suspend fun insertArticlesToDb(articles: List<ArticleRes>) {
         articlesDao.upsert(articles.map { it.data.toArticle() })
@@ -79,7 +77,7 @@ object ArticlesRepository : IArticlesRepository {
         tagsDao.insertRefs(refs.map { ArticleTagXRef(it.first, it.second) })
     }
 
-    override suspend fun toggleBookmark(articleId: String) : Boolean{
+    override suspend fun toggleBookmark(articleId: String): Boolean {
         return articlePersonalDao.toggleBookmarkOrInsert(articleId)
     }
 
@@ -91,6 +89,7 @@ object ArticlesRepository : IArticlesRepository {
         return categoriesDao.findAllCategoriesData()
     }
 
+
     override fun rawQueryArticles(filter: ArticleFilter): DataSource.Factory<Int, ArticleItem> {
         return articlesDao.findArticlesByRaw(SimpleSQLiteQuery(filter.toQuery()))
     }
@@ -99,9 +98,11 @@ object ArticlesRepository : IArticlesRepository {
         tagsDao.incrementTagUseCount(tag)
     }
 
+    suspend fun findLastArticleId(): String? = articlesDao.findLastArticleId()
+
     suspend fun fetchArticleContent(articleId: String) {
         val content = network.loadArticleContent(articleId)
-        articleContentsDao.insert(content.toArticleContent())
+        articlesContentDao.insert(content.toArticleContent())
     }
 
 }
