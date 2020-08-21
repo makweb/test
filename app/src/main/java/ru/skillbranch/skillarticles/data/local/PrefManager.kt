@@ -15,10 +15,7 @@ import ru.skillbranch.skillarticles.data.delegates.PrefObjDelegate
 import ru.skillbranch.skillarticles.data.models.AppSettings
 import ru.skillbranch.skillarticles.data.models.User
 
-
 object PrefManager {
-
-
     internal val preferences: SharedPreferences by lazy {
         PreferenceManager.getDefaultSharedPreferences(App.applicationContext())
     }
@@ -30,10 +27,14 @@ object PrefManager {
     var profile: User? by PrefObjDelegate(moshi.adapter(User::class.java))
 
     val isAuthLive: LiveData<Boolean> by lazy {
-        val token  by PrefLiveDelegate("accessToken", "",  preferences)
+        val token by PrefLiveDelegate("accessToken", "", preferences)
         token.map { it.isNotEmpty() }
     }
-    val profileLive: LiveData<User?> by PrefLiveObjDelegate("profile", moshi.adapter(User::class.java),  preferences)
+    val profileLive: LiveData<User?> by PrefLiveObjDelegate(
+        "profile",
+        moshi.adapter(User::class.java),
+        preferences
+    )
 
     val appSettings = MediatorLiveData<AppSettings>().apply {
         val isDarkModeLive: LiveData<Boolean> by PrefLiveDelegate("isDarkMode", false, preferences)

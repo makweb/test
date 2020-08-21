@@ -29,6 +29,11 @@ interface ArticlesDao : BaseDao<Article>{
 
     @Query("""
         SELECT * FROM articles
+    """)
+    suspend fun findArticlesTest(): List<Article>
+
+    @Query("""
+        SELECT * FROM articles
         WHERE id = :id
     """)
     fun findArticleById(id: String): LiveData<Article>

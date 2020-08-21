@@ -70,7 +70,7 @@ class PrefObjDelegate<T>(
             override fun setValue(thisRef: PrefManager, property: KProperty<*>, value: T?) {
                 storedValue = value
                 with(thisRef.preferences.edit()){
-                    putString(key, value?.let { adapter.toJson(value) })
+                    putString(key, value?.let { adapter.toJson(it) })
                     apply()
                 }
             }

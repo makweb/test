@@ -2,6 +2,7 @@ package ru.skillbranch.skillarticles
 
 import android.app.Application
 import android.content.Context
+import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import com.facebook.stetho.Stetho
 import ru.skillbranch.skillarticles.data.local.PrefManager
@@ -19,6 +20,7 @@ class App : Application() {
 
     init {
         instance = this
+        Log.e("App", "variant: ${BuildConfig.BUILD_TYPE}");
     }
 
     override fun onCreate() {

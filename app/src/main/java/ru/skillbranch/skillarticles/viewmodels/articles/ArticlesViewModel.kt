@@ -122,8 +122,13 @@ class ArticlesViewModel(handle: SavedStateHandle) :
         ) {
             val isBookmarked = repository.toggleBookmark(articleId)
             //if bookmarked need fetch content and handle network error
-            if (isBookmarked) repository.fetchArticleContent(articleId)
-            //TODO else remove article content from db
+            if (isBookmarked) {
+                launch { repository.fetchArticleContent(articleId) }
+                launch { repository.addBookmark(articleId) }
+            } else {
+                launch { repository.removeArticleContent(articleId) }
+                launch { repository.removeBookmark(articleId) }
+            }
         }
     }
 
