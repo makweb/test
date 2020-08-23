@@ -49,7 +49,7 @@ object ArticlesRepository : IArticlesRepository {
         categoriesDao: CategoriesDao,
         tagsDao: TagsDao,
         articlePersonalDao: ArticlePersonalInfosDao,
-        articlesContentDao :ArticleContentsDao
+        articlesContentDao: ArticleContentsDao
     ) {
         this.articlesDao = articlesDao
         this.articleCountsDao = articleCountsDao
@@ -120,7 +120,7 @@ object ArticlesRepository : IArticlesRepository {
         if (prefs.accessToken.isEmpty()) return
         try {
             network.addBookmark(articleId, prefs.accessToken)
-        }catch (e:Throwable){
+        } catch (e: Throwable) {
             if (e is NoNetworkError) return
             throw e
         }
@@ -130,7 +130,7 @@ object ArticlesRepository : IArticlesRepository {
         if (prefs.accessToken.isEmpty()) return
         try {
             network.removeBookmark(articleId, prefs.accessToken)
-        }catch (e:Throwable){
+        } catch (e: Throwable) {
             if (e is NoNetworkError) return
             throw e
         }
@@ -154,7 +154,13 @@ class ArticleFilter(
             qb.appendWhere("refs.t_id = '$search'")
         }
         if (isBookmark) qb.appendWhere("is_bookmark = 1")
-        if (categories.isNotEmpty()) qb.appendWhere("category_id IN (${categories.joinToString(",")})")
+        if (categories.isNotEmpty()) qb.appendWhere(
+            "category_id IN (${categories.joinToString(
+                "\",\"",
+                "\"",
+                "\""
+            )})"
+        )
 
         qb.orderBy("date")
         return qb.build()
