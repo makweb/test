@@ -1,5 +1,6 @@
 package ru.skillbranch.skillarticles.ui
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.navigation.ui.AppBarConfiguration
@@ -17,8 +18,8 @@ import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
 import ru.skillbranch.skillarticles.viewmodels.base.NavigationCommand
 import ru.skillbranch.skillarticles.viewmodels.base.Notify
 
-class RootActivity : BaseActivity<RootViewModel>(){
-    var isAuth : Boolean = false
+class RootActivity : BaseActivity<RootViewModel>() {
+    var isAuth: Boolean = false
     override val layout: Int = R.layout.activity_root
     public override val viewModel: RootViewModel by viewModels()
 
@@ -45,14 +46,18 @@ class RootActivity : BaseActivity<RootViewModel>(){
             //if destination change set select bottom navigation item
             nav_view.selectDestination(destination)
 
-            if(destination.id == R.id.nav_auth ) nav_view.selectItem(arguments?.get("private_destination")as Int?)
+            if (destination.id == R.id.nav_auth) nav_view.selectItem(arguments?.get("private_destination") as Int?)
 
-            if(isAuth && destination.id == R.id.nav_auth){
+            if (isAuth && destination.id == R.id.nav_auth) {
                 controller.popBackStack()
                 val private = arguments?.get("private_destination") as Int?
-                if(private !=null) controller.navigate(private)
+                if (private != null) controller.navigate(private)
             }
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
     override fun renderNotification(notify: Notify) {
@@ -83,10 +88,19 @@ class RootActivity : BaseActivity<RootViewModel>(){
         }
 
         snackbar.show()
-    }
+
+        }
 
     override fun subscribeOnState(state: IViewModelState) {
         state as RootState
         isAuth = state.isAuth
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 }

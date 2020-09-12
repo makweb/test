@@ -39,6 +39,10 @@ class ProfileFragment : BaseFragment<ProfileViewModel>() {
 
     private val permissionsResultCallback =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
+
+            result.keys.forEach{
+
+            }
             val permissionsResult = result.mapValues { (permission, isGranted) ->
                 if (isGranted) true to true
                 else false to ActivityCompat.shouldShowRequestPermissionRationale(

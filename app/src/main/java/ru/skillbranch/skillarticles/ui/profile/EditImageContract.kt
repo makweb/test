@@ -29,6 +29,11 @@ class EditImageContract : ActivityResultContract<Pair<Uri, Uri>, Uri?>() {
                 input!!.second, //for destination uri
                 Intent.FLAG_GRANT_WRITE_URI_PERMISSION //grant permission for write to destination Uri
             )
+
+            context.revokeUriPermission(
+                input!!.second, //for destination uri
+                Intent.FLAG_GRANT_WRITE_URI_PERMISSION //grant permission for write to destination Uri
+            )
         }
 
         Log.e("EditImageContract", "activities (application) for edit image: $resolveInfoList");

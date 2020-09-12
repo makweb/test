@@ -175,7 +175,7 @@ abstract class BaseViewModel<T : IViewModelState>(
         }.invokeOnCompletion {
             //скрыть индикатор загрузки по окончанию выполнения suspend функции
             hideLoading()
-            //выызвать обработчик окончания выполнения suspend функции если имеется
+            //вызвать обработчик окончания выполнения suspend функции если имеется
             compHandler?.invoke(it)
         }
 
