@@ -1,6 +1,5 @@
 package ru.skillbranch.skillarticles.ui
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.navigation.ui.AppBarConfiguration
@@ -54,10 +53,6 @@ class RootActivity : BaseActivity<RootViewModel>() {
                 if (private != null) controller.navigate(private)
             }
         }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
     }
 
     override fun renderNotification(notify: Notify) {

@@ -21,6 +21,14 @@ class AuthViewModel(handle: SavedStateHandle) : BaseViewModel<AuthState>(handle,
         }
 
     }
+
+    fun handleRegister(name:String, login:String, password:String, dest:Int?){
+        launchSafety {
+            repository.login(login, password)
+            navigate(NavigationCommand.FinishLogin(dest))
+        }
+
+    }
 }
 
 data class AuthState(val isAuth: Boolean = false): IViewModelState
