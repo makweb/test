@@ -21,7 +21,7 @@ object ProfileRepository : IProfileRepository {
 
     override suspend fun uploadAvatar(body: MultipartBody.Part) {
         val (url) = network.upload(body, prefs.accessToken)
-        prefs.profile = prefs.profile!!.copy(avatar = url)
+        prefs.profile = prefs.profile?.copy(avatar = url)
     }
 
     override suspend fun removeAvatar() {
