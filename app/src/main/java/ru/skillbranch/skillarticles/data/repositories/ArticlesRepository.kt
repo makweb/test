@@ -4,6 +4,8 @@ import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData
 import androidx.paging.DataSource
 import androidx.sqlite.db.SimpleSQLiteQuery
+import com.squareup.moshi.Moshi
+import ru.skillbranch.skillarticles.App
 import ru.skillbranch.skillarticles.data.local.DbManager.db
 import ru.skillbranch.skillarticles.data.local.PrefManager
 import ru.skillbranch.skillarticles.data.local.dao.*
@@ -34,7 +36,7 @@ interface IArticlesRepository {
 
 object ArticlesRepository : IArticlesRepository {
     private val network = NetworkManager.api
-    private val prefs = PrefManager
+    private val prefs = PrefManager(App.applicationContext(), Moshi.Builder().build())
     private var articlesDao = db.articlesDao()
     private var articlesContentDao = db.articleContentsDao()
     private var articleCountsDao = db.articleCountsDao()

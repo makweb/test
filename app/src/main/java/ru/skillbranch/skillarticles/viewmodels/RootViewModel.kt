@@ -8,13 +8,13 @@ import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
 import ru.skillbranch.skillarticles.viewmodels.base.NavigationCommand
 
 class RootViewModel(handle: SavedStateHandle) : BaseViewModel<RootState>(handle, RootState()) {
-    private val repository: RootRepository = RootRepository
+//    private val repository: RootRepository = RootRepository()
     private val privateRoutes = listOf(R.id.nav_profile)
 
     init {
-        subscribeOnDataSource(repository.isAuth()) { isAuth, state ->
+        /*subscribeOnDataSource(repository.isAuth()) { isAuth, state ->
             state.copy(isAuth = isAuth)
-        }
+        }*/
     }
 
     override fun navigate(command: NavigationCommand) {

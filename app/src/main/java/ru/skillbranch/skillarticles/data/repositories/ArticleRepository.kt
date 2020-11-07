@@ -5,6 +5,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.distinctUntilChanged
 import androidx.paging.DataSource
 import androidx.paging.ItemKeyedDataSource
+import com.squareup.moshi.Moshi
+import ru.skillbranch.skillarticles.App
 import ru.skillbranch.skillarticles.data.local.DbManager.db
 import ru.skillbranch.skillarticles.data.local.PrefManager
 import ru.skillbranch.skillarticles.data.local.dao.ArticleContentsDao
@@ -46,7 +48,7 @@ interface IArticleRepository {
 
 object ArticleRepository : IArticleRepository {
     private val network = NetworkManager.api
-    private val preferences = PrefManager
+    private val preferences = PrefManager(App.applicationContext(), Moshi.Builder().build())
     private var articlesDao = db.articlesDao()
     private var articlePersonalDao = db.articlePersonalInfosDao()
     private var articleCountsDao = db.articleCountsDao()

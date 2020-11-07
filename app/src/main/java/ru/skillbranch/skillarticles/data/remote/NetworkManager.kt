@@ -5,7 +5,6 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import ru.skillbranch.skillarticles.AppConfig
-import ru.skillbranch.skillarticles.data.JsonConverter.moshi
 import ru.skillbranch.skillarticles.data.remote.interceptors.ErrorStatusInterceptor
 import ru.skillbranch.skillarticles.data.remote.interceptors.NetworkStatusInterceptor
 import ru.skillbranch.skillarticles.data.remote.interceptors.TokenAuthenticator
@@ -21,16 +20,16 @@ object NetworkManager {
         val client = OkHttpClient().newBuilder()
             .readTimeout(2, TimeUnit.SECONDS) //socket timeout (GET)
             .writeTimeout(5, TimeUnit.SECONDS) //socket timeout (POST , PUT, etc)
-            .authenticator(TokenAuthenticator()) //refresh token if response status code 401
-            .addInterceptor(NetworkStatusInterceptor()) //intercept network status
+//            .authenticator(TokenAuthenticator()) //refresh token if response status code 401
+//            .addInterceptor(NetworkStatusInterceptor()) //intercept network status
             .addInterceptor(logging) //intercept req/res for logging
-            .addInterceptor(ErrorStatusInterceptor()) //intercept status errors
+//            .addInterceptor(ErrorStatusInterceptor()) //intercept status errors
             .build()
 
         //retrofit
         val retrofit = Retrofit.Builder()
             .client(client) //set http client
-            .addConverterFactory(MoshiConverterFactory.create(moshi)) //set json converter/parser
+//            .addConverterFactory(MoshiConverterFactory.create(moshi)) //set json converter/parser
             .baseUrl(AppConfig.BASE_URL)
             .build()
 

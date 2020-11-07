@@ -1,7 +1,9 @@
 package ru.skillbranch.skillarticles.data.repositories
 
 import androidx.lifecycle.LiveData
+import com.squareup.moshi.Moshi
 import okhttp3.MultipartBody
+import ru.skillbranch.skillarticles.App
 import ru.skillbranch.skillarticles.data.local.PrefManager
 import ru.skillbranch.skillarticles.data.models.User
 import ru.skillbranch.skillarticles.data.remote.NetworkManager
@@ -14,7 +16,7 @@ interface IProfileRepository {
 }
 
 object ProfileRepository : IProfileRepository {
-    private val prefs = PrefManager
+    private val prefs = PrefManager(App.applicationContext(), Moshi.Builder().build())
     private val network = NetworkManager.api
 
     override fun getProfile(): LiveData<User?> = prefs.profileLive
