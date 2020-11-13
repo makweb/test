@@ -24,16 +24,6 @@ class RegistrationFragment() : BaseFragment<AuthViewModel>() {
 
     override val layout: Int = R.layout.fragment_auth
 
-    //testing constructor
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
-    constructor(
-        mockRoot: RootActivity,
-        mockFactory: ((SavedStateRegistryOwner)-> ViewModelProvider.Factory)? = null
-    ) : this() {
-        _mockRoot = mockRoot
-        _mockFactory = mockFactory
-    }
-
 
     override fun setupViews() {
 

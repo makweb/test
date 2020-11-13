@@ -5,6 +5,7 @@ plugins {
     id "androidx.navigation.safeargs.kotlin"
     id 'kotlin-kapt'
     id "scabbard.gradle"
+    id 'dagger.hilt.android.plugin'
 }
 
 apply from: "../versions.gradle"
@@ -46,14 +47,6 @@ android {
     }
 
 }
-/*
-kapt {
-    correctErrorTypes = true
-
-    javacOptions {
-        option("-Xmaxerrs", 500)
-    }
-}*/
 
 scabbard {
     enabled true
@@ -116,6 +109,11 @@ dependencies {
 
     compileOnly 'com.squareup.inject:assisted-inject-annotations-dagger2:0.6.0'
     kapt 'com.squareup.inject:assisted-inject-processor-dagger2:0.6.0'
+
+    implementation "com.google.dagger:hilt-android:$hilt_version"
+    implementation "androidx.hilt:hilt-lifecycle-viewmodel:$hilt_vm_version"
+    kapt "com.google.dagger:hilt-android-compiler:$hilt_version"
+    kapt "androidx.hilt:hilt-compiler:$hilt_vm_version"
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation "com.squareup.okhttp3:mockwebserver:$okhttp_version"

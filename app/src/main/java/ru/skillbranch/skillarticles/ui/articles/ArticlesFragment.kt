@@ -9,17 +9,18 @@ import android.view.MenuItem
 import android.widget.AutoCompleteTextView
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
-import androidx.cursoradapter.widget.CursorAdapter
 import androidx.cursoradapter.widget.SimpleCursorAdapter
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_root.*
 import kotlinx.android.synthetic.main.fragment_articles.*
 import kotlinx.android.synthetic.main.search_view_layout.view.*
 import ru.skillbranch.skillarticles.R
+import ru.skillbranch.skillarticles.data.local.entities.ArticleItem
 import ru.skillbranch.skillarticles.data.local.entities.CategoryData
 import ru.skillbranch.skillarticles.ui.base.BaseFragment
 import ru.skillbranch.skillarticles.ui.base.Binding
@@ -32,15 +33,21 @@ import ru.skillbranch.skillarticles.viewmodels.articles.ArticlesViewModel
 import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
 import ru.skillbranch.skillarticles.viewmodels.base.Loading
 import ru.skillbranch.skillarticles.viewmodels.base.NavigationCommand
+import javax.inject.Inject
 
-class ArticlesFragment : BaseFragment<ArticlesViewModel>() {
+@AndroidEntryPoint
+class ArticlesFragment : BaseFragment<ArticlesViewModel>(), IArticlesView {
     override val binding: ArticlesBinding by lazy { ArticlesBinding() }
-    override val viewModel: ArticlesViewModel by viewModels()
+    override val viewModel: ArticlesViewModel by activityViewModels()
     override val layout: Int = R.layout.fragment_articles
     private val args: ArticlesFragmentArgs by navArgs()
-    private lateinit var suggestionsAdapter: SimpleCursorAdapter
 
-   override val prepareToolbar: (ToolbarBuilder.() -> Unit) = {
+    @Inject
+    lateinit var suggestionsAdapter: SimpleCursorAdapter
+    @Inject
+    lateinit var articlesAdapter : ArticlesAdapter
+
+    override val prepareToolbar: (ToolbarBuilder.() -> Unit) = {
         addMenuItem(
             MenuItemHolder(
                 "Search",
@@ -66,41 +73,14 @@ class ArticlesFragment : BaseFragment<ArticlesViewModel>() {
         )
     }
 
-    private val articlesAdapter = ArticlesAdapter { item, isToggleBookmark ->
 
-        if (isToggleBookmark) {
-            viewModel.handleToggleBookmark(item.id)
-        } else {
-            val action = ArticlesFragmentDirections.actionToPageArticle(
-                item.id,
-                item.author,
-                item.authorAvatar!!,
-                item.category,
-                item.categoryIcon,
-                item.poster,
-                item.title,
-                item.date
-            )
-            viewModel.navigate(NavigationCommand.To(action.actionId, action.arguments))
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        setFragmentResultListener(ChoseCategoryDialog.CHOOSE_CATEGORY_KEY){_, bundle ->
+        setFragmentResultListener(ChoseCategoryDialog.CHOOSE_CATEGORY_KEY) { _, bundle ->
             @Suppress("UNCHECKED_CAST")
             viewModel.applyCategories(bundle[ChoseCategoryDialog.SELECTED_CATEGORIES] as List<String>)
         }
-
-        suggestionsAdapter = SimpleCursorAdapter(
-            context,
-            android.R.layout.simple_list_item_1,
-            null, //cursor
-            arrayOf("tag"), //cursor column for bind on view
-            intArrayOf(android.R.id.text1), //text view id for bind data from cursor columns
-            CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER
-        )
         suggestionsAdapter.setFilterQueryProvider { constraint -> populateAdapter(constraint) }
         setHasOptionsMenu(true)
     }
@@ -163,17 +143,18 @@ class ArticlesFragment : BaseFragment<ArticlesViewModel>() {
     }
 
     override fun renderLoading(loadingState: Loading) {
-        when(loadingState){
-            Loading.SHOW_LOADING -> if(!refresh.isRefreshing) root.progress.isVisible = true
+        when (loadingState) {
+            Loading.SHOW_LOADING -> if (!refresh.isRefreshing) root.progress.isVisible = true
             Loading.SHOW_BLOCKING_LOADING -> root.progress.isVisible = false
-            Loading.HIDE_LOADING ->{
+            Loading.HIDE_LOADING -> {
                 root.progress.isVisible = false
-                if(refresh.isRefreshing) refresh.isRefreshing = false
+                if (refresh.isRefreshing) refresh.isRefreshing = false
             }
         }
     }
 
     override fun setupViews() {
+
         with(rv_articles) {
             layoutManager = LinearLayoutManager(context)
             adapter = articlesAdapter
@@ -219,7 +200,7 @@ class ArticlesFragment : BaseFragment<ArticlesViewModel>() {
 
     inner class ArticlesBinding : Binding() {
         var categories: List<CategoryData> = emptyList()
-        var selectedCategories: List<String> by RenderProp(emptyList()){
+        var selectedCategories: List<String> by RenderProp(emptyList()) {
             //TODO selected color on icon
         }
         var searchQuery: String? = null
@@ -255,4 +236,26 @@ class ArticlesFragment : BaseFragment<ArticlesViewModel>() {
         }
     }
 
+    override fun clickArticle(item: ArticleItem, isToggleBookmark: Boolean) {
+        if (isToggleBookmark) {
+            viewModel.handleToggleBookmark(item.id)
+        } else {
+            val action = ArticlesFragmentDirections.actionToPageArticle(
+                item.id,
+                item.author,
+                item.authorAvatar!!,
+                item.category,
+                item.categoryIcon,
+                item.poster,
+                item.title,
+                item.date
+            )
+            viewModel.navigate(NavigationCommand.To(action.actionId, action.arguments))
+        }
+    }
+
+}
+
+interface IArticlesView{
+    fun clickArticle(item : ArticleItem, isBookmarked: Boolean)
 }

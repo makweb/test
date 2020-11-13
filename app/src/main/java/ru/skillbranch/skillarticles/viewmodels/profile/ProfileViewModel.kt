@@ -7,6 +7,8 @@ import android.os.Parcel
 import android.os.Parcelable
 import android.provider.Settings
 import androidx.annotation.VisibleForTesting
+import androidx.hilt.Assisted
+import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -21,9 +23,11 @@ import ru.skillbranch.skillarticles.data.repositories.ProfileRepository
 import ru.skillbranch.skillarticles.viewmodels.base.*
 import java.io.InputStream
 
-class ProfileViewModel(handle: SavedStateHandle) :
+class ProfileViewModel @ViewModelInject constructor(
+    @Assisted handle: SavedStateHandle,
+    private val repository: ProfileRepository
+) :
     BaseViewModel<ProfileState>(handle, ProfileState()) {
-    private val repository = ProfileRepository
     private val activityResults = MutableLiveData<Event<PendingAction>>()
 
 
@@ -92,7 +96,7 @@ class ProfileViewModel(handle: SavedStateHandle) :
     fun handleUploadPhoto(inputStream: InputStream?) {
         inputStream ?: return //or show error notification
 
-        launchSafety(null, {updateState { it.copy(pendingAction = null) }}) {
+        launchSafety(null, { updateState { it.copy(pendingAction = null) } }) {
             //read file stream on background thread (IO)
             val byteArray =
                 withContext(Dispatchers.IO) { inputStream.use { input -> input.readBytes() } }

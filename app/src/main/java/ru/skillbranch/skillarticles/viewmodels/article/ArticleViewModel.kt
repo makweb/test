@@ -1,9 +1,12 @@
 package ru.skillbranch.skillarticles.viewmodels.article
 
 import androidx.annotation.VisibleForTesting
+import androidx.hilt.Assisted
+import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
+import dagger.hilt.android.components.ApplicationComponent
 import kotlinx.coroutines.launch
 import ru.skillbranch.skillarticles.data.remote.res.CommentRes
 import ru.skillbranch.skillarticles.data.repositories.ArticleRepository
@@ -19,11 +22,12 @@ import ru.skillbranch.skillarticles.viewmodels.base.NavigationCommand
 import ru.skillbranch.skillarticles.viewmodels.base.Notify
 import java.util.concurrent.Executors
 
-class ArticleViewModel(
-    handle: SavedStateHandle,
-    private val articleId: String
+class ArticleViewModel @ViewModelInject constructor(
+    @Assisted handle: SavedStateHandle,
+    private val repository : ArticleRepository
 ) : BaseViewModel<ArticleState>(handle, ArticleState()), IArticleViewModel {
-    private val repository = ArticleRepository
+
+    private val articleId: String = handle["article_id"]!! //bundle key default args (safe args from navigation)
     private var clearContent: String? = null
     private val listConfig by lazy {
         PagedList.Config.Builder()

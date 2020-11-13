@@ -1,43 +1,23 @@
 package ru.skillbranch.skillarticles.di.modules
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import android.app.Activity
+import androidx.recyclerview.widget.RecyclerView
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
-import dagger.multibindings.IntoMap
-import ru.skillbranch.skillarticles.data.local.PrefManager
-import ru.skillbranch.skillarticles.data.remote.RestService
-import ru.skillbranch.skillarticles.data.repositories.IRepository
-import ru.skillbranch.skillarticles.data.repositories.RootRepository
-import ru.skillbranch.skillarticles.di.ViewModelKey
-import ru.skillbranch.skillarticles.di.scopes.ActivityScope
-import ru.skillbranch.skillarticles.example.*
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ActivityComponent
+import dagger.hilt.android.components.FragmentComponent
+import dagger.hilt.android.scopes.ActivityScoped
+import ru.skillbranch.skillarticles.data.local.entities.ArticleItem
+import ru.skillbranch.skillarticles.ui.RootActivity
+import ru.skillbranch.skillarticles.ui.articles.ArticlesFragment
 
+@InstallIn(ActivityComponent::class)
 @Module
-abstract class ActivityModule {
+class ActivityModule {
+    @Provides
+    fun provideActivity(activity: Activity): RootActivity = activity as RootActivity
 
-    @Binds
-    @ActivityScope
-    abstract fun bindRootRepository(repository : RootRepository): IRepository
-
-
-    /*@Binds
-    @IntoMap
-    @ViewModelKey(TestViewModel::class)
-    @ActivityScope
-    abstract fun bindViewModel(vm:TestViewModel.Factory) : ViewModelAssistedFactory<ViewModel>*/
-
-   /* @Binds
-    @IntoMap
-    @ViewModelKey(ViewModelA::class)
-    @ActivityScope
-    abstract fun bindViewModelA(vm:ViewModelA.Factory) : ViewModelAssistedFactory<out ViewModel>*/
-
-    /*@Binds
-    @IntoMap
-    @ViewModelKey(ViewModelB::class)
-    @ActivityScope
-    abstract fun bindViewModeBl(vm: ViewModelB.Factory): ViewModelAssistedFactory<out ViewModel>
-*/
 }
+

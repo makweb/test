@@ -1,10 +1,17 @@
 package ru.skillbranch.skillarticles.viewmodels.articles
 
+import android.util.Log
+import androidx.hilt.Assisted
+import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
 import androidx.paging.DataSource
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
+import dagger.hilt.EntryPoint
+import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.launch
+import ru.skillbranch.skillarticles.App
+import ru.skillbranch.skillarticles.data.local.PrefManager
 import ru.skillbranch.skillarticles.data.local.entities.ArticleItem
 import ru.skillbranch.skillarticles.data.local.entities.CategoryData
 import ru.skillbranch.skillarticles.data.remote.err.NoNetworkError
@@ -14,10 +21,18 @@ import ru.skillbranch.skillarticles.viewmodels.base.BaseViewModel
 import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
 import ru.skillbranch.skillarticles.viewmodels.base.Notify
 import java.util.concurrent.Executors
-
-class ArticlesViewModel(handle: SavedStateHandle) :
+import javax.inject.Inject
+class ArticlesViewModel @ViewModelInject constructor(
+    @Assisted handle: SavedStateHandle,
+    private val repository: ArticlesRepository
+) :
     BaseViewModel<ArticlesState>(handle, ArticlesState()) {
-    private val repository = ArticlesRepository
+
+    init {
+//        Log.e("ArticlesViewModel", "vm init: $prefs");
+//        EntryPointAccessors.fromApplication(App.applicationContext(), PrefManager::class.java)
+    }
+
     private var isLoadingInitial = false
     private var isLoadingAfter = false
     private val listConfig by lazy {

@@ -4,20 +4,18 @@ import android.os.Bundle
 import android.view.*
 import androidx.annotation.VisibleForTesting
 import androidx.fragment.app.Fragment
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_root.*
 import ru.skillbranch.skillarticles.ui.RootActivity
 import ru.skillbranch.skillarticles.viewmodels.base.BaseViewModel
 import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
 import ru.skillbranch.skillarticles.viewmodels.base.Loading
+import javax.inject.Inject
 
-abstract class BaseFragment<T : BaseViewModel<out IViewModelState>>() :
-    Fragment() {
-    //mock root for testing
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
-    var _mockRoot: RootActivity? = null
+abstract class BaseFragment<T : BaseViewModel<out IViewModelState>>() : Fragment() {
 
-    val root: RootActivity
-        get() = _mockRoot ?: activity as RootActivity
+    @Inject
+    lateinit var root: RootActivity
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     abstract val viewModel: T

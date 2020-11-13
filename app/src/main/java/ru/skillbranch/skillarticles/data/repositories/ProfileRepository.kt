@@ -1,23 +1,25 @@
 package ru.skillbranch.skillarticles.data.repositories
 
 import androidx.lifecycle.LiveData
-import com.squareup.moshi.Moshi
 import okhttp3.MultipartBody
-import ru.skillbranch.skillarticles.App
 import ru.skillbranch.skillarticles.data.local.PrefManager
 import ru.skillbranch.skillarticles.data.models.User
-import ru.skillbranch.skillarticles.data.remote.NetworkManager
+import ru.skillbranch.skillarticles.data.remote.RestService
 import ru.skillbranch.skillarticles.data.remote.req.EditProfileReq
-interface IProfileRepository {
+import javax.inject.Inject
+
+interface IProfileRepository : IRepository {
     fun getProfile(): LiveData<User?>
     suspend fun uploadAvatar(body: MultipartBody.Part)
     suspend fun removeAvatar()
     suspend fun editProfile(name: String, about: String)
 }
 
-object ProfileRepository : IProfileRepository {
-    private val prefs = PrefManager(App.applicationContext(), Moshi.Builder().build())
-    private val network = NetworkManager.api
+class ProfileRepository @Inject constructor(
+    private val prefs: PrefManager,
+    private val network: RestService
+) : IProfileRepository {
+
 
     override fun getProfile(): LiveData<User?> = prefs.profileLive
 
