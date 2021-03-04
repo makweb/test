@@ -12,7 +12,7 @@ import ru.skillbranch.sbdelivery.domain.filter.CategoriesFilterUseCase
 import ru.skillbranch.sbdelivery.repository.DishesRepository
 import ru.skillbranch.sbdelivery.repository.DishesRepositoryContract
 import ru.skillbranch.sbdelivery.repository.database.DatabaseProvider
-import ru.skillbranch.sbdelivery.repository.database.SkillArticlesRoomDatabase
+import ru.skillbranch.sbdelivery.repository.database.SBDeliveryRoomDatabase
 import ru.skillbranch.sbdelivery.repository.http.client.DeliveryRetrofitProvider
 import ru.skillbranch.sbdelivery.repository.mapper.CategoriesMapper
 import ru.skillbranch.sbdelivery.repository.mapper.DishesMapper
@@ -34,7 +34,7 @@ object AppModule {
 
     fun databaseModule() = module {
         single { DatabaseProvider.newInstance(context = get()) }
-        single { get<SkillArticlesRoomDatabase>().dishesDao() }
+        single { get<SBDeliveryRoomDatabase>().dishesDao() }
     }
 
     fun viewModelModule() = module {

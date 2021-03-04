@@ -8,12 +8,12 @@ import ru.skillbranch.sbdelivery.repository.database.dao.DishesDao
 import ru.skillbranch.sbdelivery.repository.database.entity.DishPersistEntity
 
 @Database(entities = [DishPersistEntity::class], version = 1, exportSchema = false)
-abstract class SkillArticlesRoomDatabase : RoomDatabase() {
+abstract class SBDeliveryRoomDatabase : RoomDatabase() {
     abstract fun dishesDao(): DishesDao
 }
 
 object DatabaseProvider {
-    fun newInstance(context: Context): SkillArticlesRoomDatabase =
-        Room.databaseBuilder(context.applicationContext, SkillArticlesRoomDatabase::class.java, "sa_test_database")
+    fun newInstance(context: Context): SBDeliveryRoomDatabase =
+        Room.databaseBuilder(context.applicationContext, SBDeliveryRoomDatabase::class.java, "sa_test_database")
             .build()
 }
