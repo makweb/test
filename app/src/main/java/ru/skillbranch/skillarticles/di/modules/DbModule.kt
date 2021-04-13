@@ -6,6 +6,7 @@ import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ActivityComponent
 import dagger.hilt.android.components.ApplicationComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import ru.skillbranch.skillarticles.App
@@ -56,6 +57,7 @@ class DbModule {
 
 
 @Module
+@InstallIn(ActivityComponent::class)
 abstract class RootModule  {
     @Binds
     abstract fun provideRootRepository(repository:RootRepository): IRepository
