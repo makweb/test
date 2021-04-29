@@ -2,27 +2,35 @@ package ru.skillbranch.skillarticles.ui
 
 import android.os.Bundle
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
+import androidx.navigation.NavController
+import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.activity_root.*
 import ru.skillbranch.skillarticles.R
+import ru.skillbranch.skillarticles.databinding.ActivityRootBinding
 import ru.skillbranch.skillarticles.extensions.selectDestination
 import ru.skillbranch.skillarticles.extensions.selectItem
-import ru.skillbranch.skillarticles.ui.base.BaseActivity
 import ru.skillbranch.skillarticles.ui.custom.Bottombar
+import ru.skillbranch.skillarticles.ui.delegates.viewBinding
 import ru.skillbranch.skillarticles.viewmodels.RootState
 import ru.skillbranch.skillarticles.viewmodels.RootViewModel
-import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
+import ru.skillbranch.skillarticles.viewmodels.base.Loading
 import ru.skillbranch.skillarticles.viewmodels.base.NavigationCommand
 import ru.skillbranch.skillarticles.viewmodels.base.Notify
+import ru.skillbranch.skillarticles.viewmodels.base.VMState
 
 @AndroidEntryPoint
-class RootActivity : BaseActivity<RootViewModel>() {
+class RootActivity : AppCompatActivity() {
     var isAuth: Boolean = false
-    override val layout: Int = R.layout.activity_root
-    public override val viewModel: RootViewModel by viewModels()
+    val viewBinding: ActivityRootBinding by viewBinding(ActivityRootBinding::inflate)
+    val viewModel: RootViewModel by viewModels()
+    lateinit var navController: NavController
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,9 +43,9 @@ class RootActivity : BaseActivity<RootViewModel>() {
                 R.id.nav_profile
             )
         )
-
+        navController = findNavController(R.id.nav_host_fragment)
         setupActionBarWithNavController(navController, appbarConfiguration)
-        nav_view.setOnNavigationItemSelectedListener {
+        viewBinding.navView.setOnNavigationItemSelectedListener {
             //if click on bottom navigation item - > navigate to destination by item id
             viewModel.navigate(NavigationCommand.To(it.itemId))
             true
@@ -45,9 +53,9 @@ class RootActivity : BaseActivity<RootViewModel>() {
 
         navController.addOnDestinationChangedListener { controller, destination, arguments ->
             //if destination change set select bottom navigation item
-            nav_view.selectDestination(destination)
+            viewBinding.navView.selectDestination(destination)
 
-            if (destination.id == R.id.nav_auth) nav_view.selectItem(arguments?.get("private_destination") as Int?)
+            if (destination.id == R.id.nav_auth) viewBinding.navView.selectItem(arguments?.get("private_destination") as Int?)
 
             if (isAuth && destination.id == R.id.nav_auth) {
                 controller.popBackStack()
@@ -55,11 +63,22 @@ class RootActivity : BaseActivity<RootViewModel>() {
                 if (private != null) controller.navigate(private)
             }
         }
+
+        setSupportActionBar(viewBinding.toolbar)
+        viewModel.observeState(this) { subscribeOnState(it) }
+        viewModel.observeNotifications(this) { renderNotification(it) }
+        viewModel.observeNavigation(this) { subscribeOnNavigation(it) }
+        viewModel.observeLoading(this) { renderLoading(it) }
     }
 
-    override fun renderNotification(notify: Notify) {
-        val snackbar = Snackbar.make(container, notify.message, Snackbar.LENGTH_LONG)
-        snackbar.anchorView = findViewById<Bottombar>(R.id.bottombar) ?: nav_view
+    override fun onSaveInstanceState(outState: Bundle) {
+        viewModel.saveState()
+        super.onSaveInstanceState(outState)
+    }
+
+    fun renderNotification(notify: Notify) {
+        val snackbar = Snackbar.make(viewBinding.container, notify.message, Snackbar.LENGTH_LONG)
+        snackbar.anchorView = findViewById<Bottombar>(R.id.bottombar) ?: viewBinding.navView
 
         when (notify) {
             is Notify.ActionMessage -> {
@@ -86,9 +105,9 @@ class RootActivity : BaseActivity<RootViewModel>() {
 
         snackbar.show()
 
-        }
+    }
 
-    override fun subscribeOnState(state: IViewModelState) {
+    private fun subscribeOnState(state: VMState) {
         state as RootState
         isAuth = state.isAuth
     }
@@ -99,5 +118,45 @@ class RootActivity : BaseActivity<RootViewModel>() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        return navController.navigateUp() || super.onSupportNavigateUp()
+    }
+
+    private fun subscribeOnNavigation(command: NavigationCommand) {
+        when (command) {
+            is NavigationCommand.To -> {
+                navController.navigate(
+                    command.destination,
+                    command.args,
+                    command.options,
+                    command.extras
+                )
+            }
+
+            is NavigationCommand.FinishLogin -> {
+                navController.navigate(R.id.finish_login)
+                if (command.privateDestination != null) navController.navigate(command.privateDestination)
+            }
+
+            is NavigationCommand.StartLogin -> {
+                navController.navigate(
+                    R.id.start_login,
+                    bundleOf("private_destination" to (command.privateDestination ?: -1))
+                )
+            }
+        }
+    }
+
+    fun renderLoading(loadingState: Loading) {
+        when (loadingState) {
+            Loading.SHOW_LOADING -> viewBinding.progress.isVisible = true
+            Loading.SHOW_BLOCKING_LOADING -> {
+                viewBinding.progress.isVisible = true
+                //TODO block interact with UI
+            }
+            Loading.HIDE_LOADING -> viewBinding.progress.isVisible = false
+        }
     }
 }

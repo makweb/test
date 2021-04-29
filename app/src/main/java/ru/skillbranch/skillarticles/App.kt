@@ -2,7 +2,6 @@ package ru.skillbranch.skillarticles
 
 import android.app.Application
 import android.content.Context
-import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import dagger.hilt.android.HiltAndroidApp
 import ru.skillbranch.skillarticles.data.local.PrefManager
@@ -15,7 +14,7 @@ class App : Application() {
     companion object {
         private var instance: App? = null
 
-        fun applicationContext(): Context {
+        fun applicationContext() : Context {
             return instance!!.applicationContext
         }
     }
@@ -27,7 +26,6 @@ class App : Application() {
 
     init {
         instance = this
-        Log.e("App", "variant: ${BuildConfig.BUILD_TYPE}");
     }
 
     override fun onCreate() {

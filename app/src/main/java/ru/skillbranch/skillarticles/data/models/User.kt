@@ -1,6 +1,5 @@
 package ru.skillbranch.skillarticles.data.models
 
-//@JsonClass(generateAdapter = true)
 data class User(
     val id: String,
     val name: String,

@@ -1,80 +1,63 @@
 package ru.skillbranch.skillarticles.data.delegates
 
-import com.squareup.moshi.JsonAdapter
+import androidx.datastore.preferences.core.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import ru.skillbranch.skillarticles.data.local.PrefManager
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-class PrefDelegate<T>(private val defaultValue: T) {
-    private var storedValue: T? = null
-
+class PrefDelegate<T>(private val defaultValue: T, private val customKey: String? = null) {
     operator fun provideDelegate(
         thisRef: PrefManager,
         prop: KProperty<*>
     ): ReadWriteProperty<PrefManager, T> {
-        val key = prop.name
-        return object : ReadWriteProperty<PrefManager, T> {
-            override fun getValue(thisRef: PrefManager, property: KProperty<*>): T {
-                if (storedValue == null) {
-                    @Suppress("UNCHECKED_CAST")
-                    storedValue = when(defaultValue) {
-                        is Int -> thisRef.preferences.getInt(key,defaultValue as Int) as T
-                        is Long -> thisRef.preferences.getLong(key,defaultValue as Long) as T
-                        is Float -> thisRef.preferences.getFloat(key,defaultValue as Float) as T
-                        is String -> thisRef.preferences.getString(key,defaultValue as String) as T
-                        is Boolean -> thisRef.preferences.getBoolean(key,defaultValue as Boolean) as T
-                        else -> error("This type can not be stored into Preferences")
-                    }
-                }
-                return storedValue!!
-            }
+
+        val key = createKey(customKey ?: prop.name, defaultValue)
+        return object : ReadWriteProperty<PrefManager, T>{
+            private var _storedValue: T? = null
+
 
             override fun setValue(thisRef: PrefManager, property: KProperty<*>, value: T) {
-                with(thisRef.preferences.edit()) {
-                    when (value) {
-                        is String -> putString(key, value)
-                        is Int -> putInt(key, value)
-                        is Boolean -> putBoolean(key, value)
-                        is Long -> putLong(key, value)
-                        is Float -> putFloat(key, value)
-                        else -> error("Only primitive types can be stored into Preferences")
+                _storedValue = value
+                //set non blocking on coroutine
+                thisRef.scope.launch {
+                    thisRef.dataStore.edit { prefs ->
+                        prefs[key] = value
                     }
-                    apply()
                 }
-                storedValue = value
             }
 
+            override fun getValue(thisRef: PrefManager, property: KProperty<*>): T {
+                if(_storedValue == null){
+                    //async flow
+                    val flowValue = thisRef.dataStore.data
+                        .map{ prefs ->
+                            prefs[key] ?: defaultValue
+                        }
+                    //sync read (on IO Dispatcher and return result on call thread)
+                    _storedValue = runBlocking(Dispatchers.IO) { flowValue.first() }
+                }
+                return _storedValue!!
+            }
         }
+
     }
-}
 
-class PrefObjDelegate<T>(
-    private val adapter: JsonAdapter<T>
-){
-    private var storedValue: T? = null
 
-    operator fun provideDelegate(
-        thisRef: PrefManager,
-        prop: KProperty<*>
-    ): ReadWriteProperty<PrefManager, T?> {
-        val key = prop.name
-        return object : ReadWriteProperty<PrefManager, T?>{
-            override fun getValue(thisRef: PrefManager, property: KProperty<*>): T? {
-                if(storedValue == null){
-                    storedValue = thisRef.preferences.getString(key, null)
-                        ?.let { adapter.fromJson(it) }
-                }
-                return storedValue
-            }
+    @Suppress("UNCHECKED_CAST")
+    fun createKey(name: String, value: T): Preferences.Key<T> =
+        when (value) {
+            is Int -> intPreferencesKey(name)
+            is Long -> longPreferencesKey(name)
+            is Double -> doublePreferencesKey(name)
+            is Float -> floatPreferencesKey(name)
+            is String -> stringPreferencesKey(name)
+            is Boolean -> booleanPreferencesKey(name)
+            else -> error("This type can not be stored into Preferences")
+        }.run { this as Preferences.Key<T> }
 
-            override fun setValue(thisRef: PrefManager, property: KProperty<*>, value: T?) {
-                storedValue = value
-                with(thisRef.preferences.edit()){
-                    putString(key, value?.let { adapter.toJson(it) })
-                    apply()
-                }
-            }
-
-        }
-    }
 }

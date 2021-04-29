@@ -1,4 +1,4 @@
-package ru.skillbranch.skillarticles.data.remote.adapters
+package ru.skillbranch.skillarticles.data.adapters
 
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.ToJson

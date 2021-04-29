@@ -1,56 +1,65 @@
 package ru.skillbranch.skillarticles.data.local
 
 import android.content.Context
-import android.content.SharedPreferences
+import android.util.Log
+import androidx.datastore.core.DataStore
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.distinctUntilChanged
-import androidx.lifecycle.map
-import androidx.preference.PreferenceManager
-import com.squareup.moshi.Moshi
 import ru.skillbranch.skillarticles.data.delegates.PrefDelegate
-import ru.skillbranch.skillarticles.data.delegates.PrefLiveDelegate
-import ru.skillbranch.skillarticles.data.delegates.PrefLiveObjDelegate
 import ru.skillbranch.skillarticles.data.delegates.PrefObjDelegate
 import ru.skillbranch.skillarticles.data.models.AppSettings
 import ru.skillbranch.skillarticles.data.models.User
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.distinctUntilChanged
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.zip
+import ru.skillbranch.skillarticles.data.adapters.UserJsonAdapter
 
-class PrefManager(context: Context, val moshi: Moshi) {
-    internal val preferences: SharedPreferences by lazy {
-        PreferenceManager.getDefaultSharedPreferences(context)
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
+
+class PrefManager(context: Context) {
+    val dataStore = context.dataStore
+    private val errHandler = CoroutineExceptionHandler { _, th ->
+        Log.e("PrefManager", "err ${th.message}")
+        //TODO handle error this
     }
+
+    internal val scope = CoroutineScope(SupervisorJob() + errHandler)
 
     var isDarkMode by PrefDelegate(false)
     var isBigText by PrefDelegate(false)
     var accessToken by PrefDelegate("")
     var refreshToken by PrefDelegate("")
-    var profile: User? by PrefObjDelegate(moshi.adapter(User::class.java))
+    var profile: User? by PrefObjDelegate(UserJsonAdapter())
 
-    val isAuthLive: LiveData<Boolean> by lazy {
-        val token by PrefLiveDelegate("accessToken", "", preferences)
-        token.map { it.isNotEmpty() }
-    }
-    val profileLive: LiveData<User?> by PrefLiveObjDelegate(
-        "profile",
-        moshi.adapter(User::class.java),
-        preferences
-    )
+    val isAuthLive: LiveData<Boolean>  = dataStore.data.map { it[stringPreferencesKey(this::accessToken.name)] ?: "" }
+        .map { it.isNotEmpty() }
+        .distinctUntilChanged()
+        .asLiveData()
 
-    val appSettings = MediatorLiveData<AppSettings>().apply {
-        val isDarkModeLive: LiveData<Boolean> by PrefLiveDelegate("isDarkMode", false, preferences)
-        val isBigTextLive: LiveData<Boolean> by PrefLiveDelegate("isBigText", false, preferences)
-        value = AppSettings()
 
-        addSource(isDarkModeLive) {
-            value = value!!.copy(isDarkMode = it)
+     val profileLive: LiveData<User?>  = dataStore.data.map { it[stringPreferencesKey(this::profile.name)] ?: "" }
+         .map { UserJsonAdapter().fromJson(it) }
+         .distinctUntilChanged()
+         .asLiveData()
+
+    val settings: LiveData<AppSettings>
+        get() {
+            val isBig =
+                dataStore.data.map { it[booleanPreferencesKey(this::isBigText.name)] ?: false }
+            val isDark =
+                dataStore.data.map { it[booleanPreferencesKey(this::isDarkMode.name)] ?: false }
+
+            return isDark.zip(isBig) { dark, big -> AppSettings(dark, big) }
+                .distinctUntilChanged()
+                .asLiveData()
         }
-        addSource(isBigTextLive) {
-            value = value!!.copy(isBigText = it)
-        }
 
-    }.distinctUntilChanged()
-
-    fun clearAll() {
-        preferences.edit().clear().apply()
-    }
 }

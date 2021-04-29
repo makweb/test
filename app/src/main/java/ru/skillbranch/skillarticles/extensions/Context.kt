@@ -11,6 +11,7 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.annotation.AttrRes
+import androidx.fragment.app.Fragment
 
 fun Context.dpToPx(dp: Int): Float {
     return TypedValue.applyDimension(
@@ -22,6 +23,14 @@ fun Context.dpToPx(dp: Int): Float {
 }
 
 fun Context.dpToIntPx(dp: Int): Int {
+    return TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP,
+        dp.toFloat(),
+        this.resources.displayMetrics
+    ).toInt()
+}
+
+fun Fragment.dpToIntPx(dp: Int): Int {
     return TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_DIP,
         dp.toFloat(),

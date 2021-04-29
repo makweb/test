@@ -30,7 +30,7 @@ import ru.skillbranch.skillarticles.ui.delegates.RenderProp
 import ru.skillbranch.skillarticles.ui.dialogs.ChoseCategoryDialog
 import ru.skillbranch.skillarticles.viewmodels.articles.ArticlesState
 import ru.skillbranch.skillarticles.viewmodels.articles.ArticlesViewModel
-import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
+import ru.skillbranch.skillarticles.viewmodels.base.VMState
 import ru.skillbranch.skillarticles.viewmodels.base.Loading
 import ru.skillbranch.skillarticles.viewmodels.base.NavigationCommand
 import javax.inject.Inject
@@ -212,7 +212,7 @@ class ArticlesFragment : BaseFragment<ArticlesViewModel>(), IArticlesView {
         var isHashtagSearch: Boolean by RenderProp(false)
         var tags: List<String> by RenderProp(emptyList())
 
-        override fun bind(data: IViewModelState) {
+        override fun bind(data: VMState) {
             data as ArticlesState
             isSearch = data.isSearch
             searchQuery = data.searchQuery

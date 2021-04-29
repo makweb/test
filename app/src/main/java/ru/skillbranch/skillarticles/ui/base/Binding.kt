@@ -2,7 +2,7 @@ package ru.skillbranch.skillarticles.ui.base
 
 import android.os.Bundle
 import ru.skillbranch.skillarticles.ui.delegates.RenderProp
-import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
+import ru.skillbranch.skillarticles.viewmodels.base.VMState
 import kotlin.reflect.KProperty
 
 abstract class Binding {
@@ -21,7 +21,7 @@ abstract class Binding {
         delegates.forEach { it.value.bind() }
     }
 
-    abstract fun bind(data: IViewModelState)
+    abstract fun bind(data: VMState)
     /**
      * override this if need save binding in bundle
      */

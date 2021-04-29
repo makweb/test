@@ -5,11 +5,14 @@ import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.SavedStateHandle
 import ru.skillbranch.skillarticles.data.repositories.RootRepository
 import ru.skillbranch.skillarticles.viewmodels.base.BaseViewModel
-import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
+import ru.skillbranch.skillarticles.viewmodels.base.VMState
 import ru.skillbranch.skillarticles.viewmodels.base.NavigationCommand
 import ru.skillbranch.skillarticles.viewmodels.base.Notify
 
-class AuthViewModel @ViewModelInject constructor(@Assisted handle: SavedStateHandle, val repository: RootRepository) : BaseViewModel<AuthState>(handle, AuthState()), IAuthViewModel{
+class AuthViewModel @ViewModelInject constructor(@Assisted handle: SavedStateHandle, val repository: RootRepository) : BaseViewModel<AuthState>(
+    AuthState(),
+    handle
+), IAuthViewModel{
     init {
         subscribeOnDataSource(repository.isAuth()){isAuth, state ->
             state.copy(isAuth = isAuth)
@@ -69,4 +72,4 @@ class AuthViewModel @ViewModelInject constructor(@Assisted handle: SavedStateHan
     }
 }
 
-data class AuthState(val isAuth: Boolean = false): IViewModelState
+data class AuthState(val isAuth: Boolean = false): VMState

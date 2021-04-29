@@ -1,21 +1,20 @@
 package ru.skillbranch.skillarticles.di.modules
 
 import android.content.Context
-import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ApplicationComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import ru.skillbranch.skillarticles.data.local.PrefManager
 import javax.inject.Singleton
 
-@InstallIn(ApplicationComponent::class)
+@InstallIn(SingletonComponent::class)
 @Module
 object PreferencesModule{
 
     @Provides
     @Singleton
-    fun providePrefManger(@ApplicationContext context:Context, moshi: Moshi) : PrefManager = PrefManager(context , moshi)
+    fun providePrefManger(@ApplicationContext context:Context) : PrefManager = PrefManager(context)
 
 }

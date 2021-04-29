@@ -1,7 +1,6 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
-    id 'kotlin-android-extensions'
     id "androidx.navigation.safeargs.kotlin"
     id 'kotlin-kapt'
     id "scabbard.gradle"
@@ -39,13 +38,9 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-    androidExtensions {
-        experimental = true
+    buildFeatures {
+        viewBinding true
     }
-    testOptions {
-        unitTests.returnDefaultValues = true
-    }
-
 }
 
 scabbard {
@@ -55,10 +50,15 @@ scabbard {
 }
 
 dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "androidx.appcompat:appcompat:$app_compat_version"
     implementation "androidx.core:core-ktx:$core_ktx_version"
     implementation "androidx.constraintlayout:constraintlayout:$constraint_version"
+
+    //data store
+    implementation "androidx.datastore:datastore-preferences:1.0.0-beta01"
+
     //lifecycle
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
@@ -75,9 +75,6 @@ dependencies {
 
     //glide
     implementation "com.github.bumptech.glide:glide:$glide_version"
-    implementation 'androidx.wear:wear:1.1.0'
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    compileOnly 'com.google.android.wearable:wearable:2.8.1'
     kapt "com.github.bumptech.glide:compiler:$glide_version"
 
     //paging
@@ -104,16 +101,10 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
 
     //di
-    implementation "com.google.dagger:dagger:$dagger_version"
-    kapt "com.google.dagger:dagger-compiler:$dagger_version"
-
-    compileOnly 'com.squareup.inject:assisted-inject-annotations-dagger2:0.6.0'
-    kapt 'com.squareup.inject:assisted-inject-processor-dagger2:0.6.0'
-
     implementation "com.google.dagger:hilt-android:$hilt_version"
+    kapt "com.google.dagger:hilt-compiler:$hilt_version"
     implementation "androidx.hilt:hilt-lifecycle-viewmodel:$hilt_vm_version"
-    kapt "com.google.dagger:hilt-android-compiler:$hilt_version"
-    kapt "androidx.hilt:hilt-compiler:$hilt_vm_version"
+    kapt "androidx.hilt:hilt-compiler:$hilt_compiler_version"
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation "com.squareup.okhttp3:mockwebserver:$okhttp_version"

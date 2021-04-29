@@ -1,12 +1,10 @@
 package ru.skillbranch.skillarticles.viewmodels.article
 
 import androidx.annotation.VisibleForTesting
-import androidx.hilt.Assisted
-import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
-import dagger.hilt.android.components.ApplicationComponent
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import ru.skillbranch.skillarticles.data.remote.res.CommentRes
 import ru.skillbranch.skillarticles.data.repositories.ArticleRepository
@@ -17,15 +15,17 @@ import ru.skillbranch.skillarticles.extensions.data.toAppSettings
 import ru.skillbranch.skillarticles.extensions.indexesOf
 import ru.skillbranch.skillarticles.extensions.shortFormat
 import ru.skillbranch.skillarticles.viewmodels.base.BaseViewModel
-import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
+import ru.skillbranch.skillarticles.viewmodels.base.VMState
 import ru.skillbranch.skillarticles.viewmodels.base.NavigationCommand
 import ru.skillbranch.skillarticles.viewmodels.base.Notify
 import java.util.concurrent.Executors
+import javax.inject.Inject
 
-class ArticleViewModel @ViewModelInject constructor(
-    @Assisted handle: SavedStateHandle,
+@HiltViewModel
+class ArticleViewModel @Inject constructor(
+    handle: SavedStateHandle,
     private val repository : ArticleRepository
-) : BaseViewModel<ArticleState>(handle, ArticleState()), IArticleViewModel {
+) : BaseViewModel<ArticleState>(ArticleState(), handle), IArticleViewModel {
 
     private val articleId: String = handle["article_id"]!! //bundle key default args (safe args from navigation)
     private var clearContent: String? = null
@@ -269,7 +269,7 @@ data class ArticleState(
     val source: String? = null, //источник контента
     val hashtags: List<String> = emptyList()// хештеги контента
 
-) : IViewModelState {
+) : VMState {
     override fun save(outState: SavedStateHandle) {
 
         outState.set("isSearch", isSearch)
@@ -293,3 +293,18 @@ data class ArticleState(
         )
     }
 }
+
+data class BottombarData(
+    val isLike: Boolean = false, //отмечено как Like
+    val isBookmark: Boolean = false, //в закладках
+    val isShowMenu: Boolean = false, //отображается меню
+    val isSearch: Boolean = false, //режим поиска
+    val resultsCount: Int = 0, //количество найденных вхождений
+    val searchPosition: Int = 0 //текущая позиция поиска
+)
+
+data class SubmenuData(
+    val isShowMenu: Boolean = false, //отображается меню
+    val isBigText: Boolean = false, //шрифт увеличен
+    val isDarkMode: Boolean = false, //темный режим
+)

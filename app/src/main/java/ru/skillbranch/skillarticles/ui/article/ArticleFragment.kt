@@ -1,18 +1,12 @@
 package ru.skillbranch.skillarticles.ui.article
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
-import android.graphics.drawable.Drawable
+
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
-import android.view.WindowManager
-import android.widget.TextView
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.appcompat.widget.SearchView
-import androidx.core.text.buildSpannedString
-import androidx.core.view.isVisible
+import android.text.Spannable
+import android.text.SpannableString
+import android.view.View
+import androidx.annotation.VisibleForTesting
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -26,85 +20,95 @@ import com.bumptech.glide.request.RequestOptions.circleCropTransform
 import com.bumptech.glide.request.target.Target
 import com.google.android.material.appbar.AppBarLayout
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.activity_root.*
-import kotlinx.android.synthetic.main.fragment_article.*
-import kotlinx.android.synthetic.main.layout_bottombar.view.*
-import kotlinx.android.synthetic.main.layout_submenu.view.*
-import kotlinx.android.synthetic.main.search_view_layout.view.*
+
 import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.data.remote.res.CommentRes
-import ru.skillbranch.skillarticles.data.repositories.Element
-import ru.skillbranch.skillarticles.data.repositories.MarkdownElement
-import ru.skillbranch.skillarticles.extensions.*
-import ru.skillbranch.skillarticles.ui.base.*
-import ru.skillbranch.skillarticles.ui.custom.ArticleSubmenu
-import ru.skillbranch.skillarticles.ui.custom.Bottombar
-import ru.skillbranch.skillarticles.ui.custom.ShimmerDrawable
-import ru.skillbranch.skillarticles.ui.custom.markdown.MarkdownBuilder
-import ru.skillbranch.skillarticles.ui.delegates.RenderProp
+import ru.skillbranch.skillarticles.databinding.FragmentArticleBinding
+import ru.skillbranch.skillarticles.extensions.dpToIntPx
+import ru.skillbranch.skillarticles.extensions.setMarginOptionally
+import ru.skillbranch.skillarticles.extensions.showKeyboard
+import ru.skillbranch.skillarticles.ui.custom.spans.SearchSpan
+import ru.skillbranch.skillarticles.ui.delegates.AttrValue
+import ru.skillbranch.skillarticles.ui.delegates.viewBinding
 import ru.skillbranch.skillarticles.viewmodels.article.ArticleState
 import ru.skillbranch.skillarticles.viewmodels.article.ArticleViewModel
-import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
+import ru.skillbranch.skillarticles.viewmodels.article.BottombarData
+import ru.skillbranch.skillarticles.viewmodels.article.SubmenuData
 import ru.skillbranch.skillarticles.viewmodels.base.Loading
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
+class ArticleFragment : Fragment(R.layout.fragment_article), IArticleView {
     private val args: ArticleFragmentArgs by navArgs()
-    override val viewModel: ArticleViewModel by viewModels()
+    val viewModel: ArticleViewModel by viewModels()
 
-    @Inject
-    lateinit var commentsAdapter : CommentsAdapter
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val bgColor by AttrValue(R.attr.colorSecondary)
 
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val fgColor by AttrValue(R.attr.colorOnSecondary)
 
-    override val layout: Int = R.layout.fragment_article
-    override val binding: ArticleBinding by lazy { ArticleBinding() }
-    override val prepareToolbar: (ToolbarBuilder.() -> Unit)? = {
-        this.setSubtitle(args.category)
-            .setLogo(args.categoryIcon)
-            .addMenuItem(
-                MenuItemHolder(
-                    "search",
-                    R.id.action_search,
-                    R.drawable.ic_search_black_24dp,
-                    R.layout.search_view_layout
-                )
-            )
+    private val viewBinding: FragmentArticleBinding by viewBinding(FragmentArticleBinding::bind)
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupToolbar()
+        setupBottombar()
+        setupSubmenu()
     }
 
-    override val prepareBottombar: (BottombarBuilder.() -> Unit)? = {
-        this.addView(R.layout.layout_submenu)
-            .addView(R.layout.layout_bottombar)
-            .setVisibility(false)
-    }
 
-    private val bottombar
+    /* @Inject
+     lateinit var commentsAdapter : CommentsAdapter*/
+
+
+//    override val binding: ArticleBinding by lazy { ArticleBinding() }
+    /* override val prepareToolbar: (ToolbarBuilder.() -> Unit)? = {
+         this.setSubtitle(args.category)
+             .setLogo(args.categoryIcon)
+             .addMenuItem(
+                 MenuItemHolder(
+                     "search",
+                     R.id.action_search,
+                     R.drawable.ic_search_black_24dp,
+                     R.layout.search_view_layout
+                 )
+             )
+     }
+
+     override val prepareBottombar: (BottombarBuilder.() -> Unit)? = {
+         this.addView(R.layout.layout_submenu)
+             .addView(R.layout.layout_bottombar)
+             .setVisibility(false)
+     }*/
+
+    /*private val bottombar
         get() = root.findViewById<Bottombar>(R.id.bottombar)
     private val submenu
-        get() = root.findViewById<ArticleSubmenu>(R.id.submenu)
+        get() = root.findViewById<ArticleSubmenu>(R.id.submenu)*/
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
+    /* override fun onCreate(savedInstanceState: Bundle?) {
+         super.onCreate(savedInstanceState)
+         setHasOptionsMenu(true)
+     }*/
+
+    fun renderLoading(loadingState: Loading) {
+        /* when (loadingState) {
+             Loading.SHOW_LOADING -> if (!refresh.isRefreshing) root.progress.isVisible = true
+             Loading.SHOW_BLOCKING_LOADING -> root.progress.isVisible = false
+             Loading.HIDE_LOADING -> {
+                 root.progress.isVisible = false
+                 if (refresh.isRefreshing) refresh.isRefreshing = false
+             }
+         }*/
     }
 
-    override fun renderLoading(loadingState: Loading) {
-        when (loadingState) {
-            Loading.SHOW_LOADING -> if (!refresh.isRefreshing) root.progress.isVisible = true
-            Loading.SHOW_BLOCKING_LOADING -> root.progress.isVisible = false
-            Loading.HIDE_LOADING -> {
-                root.progress.isVisible = false
-                if (refresh.isRefreshing) refresh.isRefreshing = false
-            }
-        }
-    }
-
-    override fun setupViews() {
+    fun setupViews() {
         //window resize options
 //        commentsAdapter.listener =
-        root.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+//        root.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
-        setupBottombar()
+        /*setupBottombar()
         setupSubmenu()
 
         //init views
@@ -114,30 +118,30 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
         val baseColor = root.getColor(R.color.color_gray_light)
         val posterWidth = resources.displayMetrics.widthPixels - root.dpToIntPx(32)
         val posterHeight = (posterWidth / 16f * 9).toInt()
-        val highlightColor = requireContext().getColor(R.color.color_divider)
+        val highlightColor = requireContext().getColor(R.color.color_divider)*/
 
-        val avatarShimmer = ShimmerDrawable.Builder()
-            .setBaseColor(baseColor)
-            .setHighlightColor(highlightColor)
-            .setShimmerWidth(posterWidth)
-            .addShape(ShimmerDrawable.Shape.Round(avatarSize))
-            .build()
-            .apply { start() }
+        /*  val avatarShimmer = ShimmerDrawable.Builder()
+              .setBaseColor(baseColor)
+              .setHighlightColor(highlightColor)
+              .setShimmerWidth(posterWidth)
+              .addShape(ShimmerDrawable.Shape.Round(avatarSize))
+              .build()
+              .apply { start() }
 
-        val posterShimmer = ShimmerDrawable.Builder()
-            .setBaseColor(baseColor)
-            .setHighlightColor(highlightColor)
-            .addShape(
-                ShimmerDrawable.Shape.Rectangle(
-                    width = posterWidth,
-                    height = posterHeight,
-                    cornerRadius = cornerRadius
-                )
-            )
-            .build()
-            .apply { start() }
+          val posterShimmer = ShimmerDrawable.Builder()
+              .setBaseColor(baseColor)
+              .setHighlightColor(highlightColor)
+              .addShape(
+                  ShimmerDrawable.Shape.Rectangle(
+                      width = posterWidth,
+                      height = posterHeight,
+                      cornerRadius = cornerRadius
+                  )
+              )
+              .build()
+              .apply { start() }*/
 
-        Glide.with(root)
+        /*Glide.with(root)
             .load(args.authorAvatar)
             .listener(object : RequestListener<Drawable> {
                 override fun onLoadFailed(
@@ -216,104 +220,139 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
             adapter = commentsAdapter
         }
 
-        viewModel.observeList(viewLifecycleOwner) { commentsAdapter.submitList(it) }
+        viewModel.observeList(viewLifecycleOwner) { commentsAdapter.submitList(it) }*/
     }
 
     override fun onDestroyView() {
-        root.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
+//        root.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
         super.onDestroyView()
     }
 
-    override fun showSearchBar() {
-        bottombar.setSearchState(true)
-        scroll.setMarginOptionally(bottom = root.dpToIntPx(56))
+
+    override fun setupSubmenu() {
+        TODO("Not yet implemented")
+    }
+
+    override fun setupBottombar() {
+        TODO("Not yet implemented")
+    }
+
+    override fun renderBotombar(data: BottombarData) {
+        TODO("Not yet implemented")
+    }
+
+    override fun renderSubmenu(data: SubmenuData) {
+        TODO("Not yet implemented")
+    }
+
+    override fun renderUi(data: ArticleState) {
+        TODO("Not yet implemented")
+    }
+
+    override fun setupToolbar() {
+
+    }
+
+    override fun renderSearchResult(searchResult: List<Pair<Int, Int>>) =
+        viewBinding.tvTextContent.renderSearchResult(searchResult)
+
+    override fun renderSearchPosition(searchPosition: Pair<Int, Int>?) =
+        viewBinding.tvTextContent.renderSearchPosition(searchPosition)
+
+    override fun clearSearchResult() =viewBinding.tvTextContent.clearSearchResult()
+
+    override fun showSearchBar(resultsCount: Int, searchPosition: Int) {
+//        bottombar.setSearchState(true)
+        viewBinding.scroll.setMarginOptionally(bottom = dpToIntPx(56))
     }
 
     override fun hideSearchBar() {
-        bottombar.setSearchState(false)
-        scroll.setMarginOptionally(bottom = 0)
+//        bottombar.setSearchState(false)
+        viewBinding.scroll.setMarginOptionally(bottom = requireContext().dpToIntPx(0))
     }
 
     override fun clickOnComment(comment: CommentRes) {
         viewModel.handleReplyTo(comment.id, comment.user.name)
-        et_comment.requestFocus()
-        scroll.smoothScrollTo(0, wrap_comments.top)
-        et_comment.context.showKeyboard(et_comment)
-    }
-
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        val menuItem = menu.findItem(R.id.action_search)
-        val searchView = (menuItem?.actionView as SearchView)
-        searchView.queryHint = getString(R.string.article_search_placeholder)
-
-        //restore SearchView
-        if (binding.isSearch) {
-            menuItem.expandActionView()
-            searchView.setQuery(binding.searchQuery, false)
-
-            if (binding.isFocusedSearch) searchView.requestFocus()
-            else searchView.clearFocus()
-        }
-
-        menuItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
-            override fun onMenuItemActionExpand(item: MenuItem?): Boolean {
-                viewModel.handleSearchMode(true)
-                return true
-            }
-
-            override fun onMenuItemActionCollapse(item: MenuItem?): Boolean {
-                viewModel.handleSearchMode(false)
-                return true
-            }
-
-        })
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                viewModel.handleSearch(query)
-                return true
-            }
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                viewModel.handleSearch(newText)
-                return true
-            }
-
-        })
-    }
-
-    private fun setupSubmenu() {
-        submenu.btn_text_up.setOnClickListener { viewModel.handleUpText() }
-        submenu.btn_text_down.setOnClickListener { viewModel.handleDownText() }
-        submenu.switch_mode.setOnClickListener { viewModel.handleNightMode() }
-    }
-
-    private fun setupBottombar() {
-        bottombar.btn_like.setOnClickListener { viewModel.handleLike() }
-        bottombar.btn_bookmark.setOnClickListener { viewModel.handleBookmark() }
-        bottombar.btn_share.setOnClickListener { viewModel.handleShare() }
-        bottombar.btn_settings.setOnClickListener { viewModel.handleToggleMenu() }
-
-        bottombar.btn_result_up.setOnClickListener {
-            if (!tv_text_content.hasFocus()) tv_text_content.requestFocus()
-            root.hideKeyboard(it)
-            viewModel.handleUpResult()
-        }
-
-        bottombar.btn_result_down.setOnClickListener {
-            if (!tv_text_content.hasFocus()) tv_text_content.requestFocus()
-            root.hideKeyboard(it)
-            viewModel.handleDownResult()
-        }
-
-        bottombar.btn_search_close.setOnClickListener {
-            viewModel.handleSearchMode(false)
-            root.invalidateOptionsMenu()
+        with(viewBinding){
+            etComment.requestFocus()
+            scroll.smoothScrollTo(0, wrapComments.top)
+            etComment.context.showKeyboard(etComment)
         }
     }
 
-    private fun setupCopyListener() {
+
+    /* override fun onPrepareOptionsMenu(menu: Menu) {
+         super.onPrepareOptionsMenu(menu)
+         val menuItem = menu.findItem(R.id.action_search)
+         val searchView = (menuItem?.actionView as SearchView)
+         searchView.queryHint = getString(R.string.article_search_placeholder)
+
+         //restore SearchView
+         if (binding.isSearch) {
+             menuItem.expandActionView()
+             searchView.setQuery(binding.searchQuery, false)
+
+             if (binding.isFocusedSearch) searchView.requestFocus()
+             else searchView.clearFocus()
+         }
+
+         menuItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+             override fun onMenuItemActionExpand(item: MenuItem?): Boolean {
+                 viewModel.handleSearchMode(true)
+                 return true
+             }
+
+             override fun onMenuItemActionCollapse(item: MenuItem?): Boolean {
+                 viewModel.handleSearchMode(false)
+                 return true
+             }
+
+         })
+         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+             override fun onQueryTextSubmit(query: String?): Boolean {
+                 viewModel.handleSearch(query)
+                 return true
+             }
+
+             override fun onQueryTextChange(newText: String?): Boolean {
+                 viewModel.handleSearch(newText)
+                 return true
+             }
+
+         })
+     }
+ */
+    /* private fun setupSubmenu() {
+         submenu.btn_text_up.setOnClickListener { viewModel.handleUpText() }
+         submenu.btn_text_down.setOnClickListener { viewModel.handleDownText() }
+         submenu.switch_mode.setOnClickListener { viewModel.handleNightMode() }
+     }
+
+     private fun setupBottombar() {
+         bottombar.btn_like.setOnClickListener { viewModel.handleLike() }
+         bottombar.btn_bookmark.setOnClickListener { viewModel.handleBookmark() }
+         bottombar.btn_share.setOnClickListener { viewModel.handleShare() }
+         bottombar.btn_settings.setOnClickListener { viewModel.handleToggleMenu() }
+
+         bottombar.btn_result_up.setOnClickListener {
+             if (!tv_text_content.hasFocus()) tv_text_content.requestFocus()
+             root.hideKeyboard(it)
+             viewModel.handleUpResult()
+         }
+
+         bottombar.btn_result_down.setOnClickListener {
+             if (!tv_text_content.hasFocus()) tv_text_content.requestFocus()
+             root.hideKeyboard(it)
+             viewModel.handleDownResult()
+         }
+
+         bottombar.btn_search_close.setOnClickListener {
+             viewModel.handleSearchMode(false)
+             root.invalidateOptionsMenu()
+         }
+     }*/
+
+    /*private fun setupCopyListener() {
         tv_text_content.setCopyListener { copy ->
             val clipboard =
                 requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -434,7 +473,7 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
             }
         }
 
-        override fun bind(data: IViewModelState) {
+        override fun bind(data: VMState) {
             data as ArticleState
             isLike = data.isLike
             isBookmark = data.isBookmark
@@ -462,5 +501,5 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
         override fun restoreUi(savedState: Bundle?) {
             isFocusedSearch = savedState?.getBoolean(::isFocusedSearch.name) ?: false
         }
-    }
+    }*/
 }

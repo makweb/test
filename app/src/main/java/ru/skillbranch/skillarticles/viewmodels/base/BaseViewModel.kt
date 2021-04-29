@@ -1,8 +1,7 @@
 package ru.skillbranch.skillarticles.viewmodels.base
 
-//import ru.skillbranch.skillarticles.data.remote.err.ApiError
-//import ru.skillbranch.skillarticles.data.remote.err.NoNetworkError
 import android.os.Bundle
+import android.util.Log
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.*
@@ -16,10 +15,10 @@ import ru.skillbranch.skillarticles.data.remote.err.ApiError
 import ru.skillbranch.skillarticles.data.remote.err.NoNetworkError
 import java.net.SocketTimeoutException
 
-abstract class BaseViewModel<T : IViewModelState>(
-    private val handleState: SavedStateHandle,
-    initState: T
-) : ViewModel() {
+abstract class BaseViewModel<T>(
+    initState: T,
+    private val savedStateHandle: SavedStateHandle
+) : ViewModel() where T : VMState{
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     val notifications = MutableLiveData<Event<Notify>>()
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
@@ -35,7 +34,11 @@ abstract class BaseViewModel<T : IViewModelState>(
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     val state: MediatorLiveData<T> = MediatorLiveData<T>().apply {
-        value = initState
+        val restoredState = savedStateHandle.get<Any>("state")?.let {
+            if(it is Bundle) initState.fromBundle(it) as? T
+            else it as T
+        }
+        value = restoredState ?: initState
     }
 
     /***
@@ -131,15 +134,18 @@ abstract class BaseViewModel<T : IViewModelState>(
         }
     }
 
-    open fun saveState() {
-        currentState.save(handleState)
+    /***
+     * вспомогательная функция позволяющая наблюдать за изменениями части стейта ViewModel
+     */
+    fun <D> observeSubState(owner: LifecycleOwner, transform : (T) -> D, onChanged: (substate: D) -> Unit) {
+        state
+            .map(transform) //трансыормируем весь стейт в необходимую модель substate
+            .distinctUntilChanged() //отфильтровываем и пропускаем дальше только если значение измнилось
+            .observe(owner, Observer { onChanged(it!!) })
     }
 
-    @Suppress("UNCHECKED_CAST")
-    fun restoreState() {
-        val restoredState = currentState.restore(handleState) as T
-        if (currentState == restoredState) return
-        state.value = currentState.restore(handleState) as T
+    open fun saveState() {
+        savedStateHandle.set("state", currentState)
     }
 
     protected fun launchSafety(

@@ -56,7 +56,7 @@ class ArticleRepository @Inject constructor(
     }
 
     override fun getAppSettings(): LiveData<AppSettings> =
-        preferences.appSettings //from preferences
+        preferences.settings //from preferences
 
     override fun isAuth(): LiveData<Boolean> = preferences.isAuthLive
 

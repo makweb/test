@@ -4,15 +4,13 @@ import android.os.Bundle
 import android.view.*
 import androidx.annotation.VisibleForTesting
 import androidx.fragment.app.Fragment
-import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.activity_root.*
 import ru.skillbranch.skillarticles.ui.RootActivity
 import ru.skillbranch.skillarticles.viewmodels.base.BaseViewModel
-import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
+import ru.skillbranch.skillarticles.viewmodels.base.VMState
 import ru.skillbranch.skillarticles.viewmodels.base.Loading
 import javax.inject.Inject
 
-abstract class BaseFragment<T : BaseViewModel<out IViewModelState>>() : Fragment() {
+abstract class BaseFragment<T : BaseViewModel<out VMState>>() : Fragment() {
 
     @Inject
     lateinit var root: RootActivity
@@ -22,11 +20,11 @@ abstract class BaseFragment<T : BaseViewModel<out IViewModelState>>() : Fragment
     protected abstract val layout: Int
     open val binding: Binding? = null
 
-    open val prepareToolbar: (ToolbarBuilder.() -> Unit)? = null
+   /* open val prepareToolbar: (ToolbarBuilder.() -> Unit)? = null
     open val prepareBottombar: (BottombarBuilder.() -> Unit)? = null
 
     val toolbar
-        get() = root.toolbar
+        get() = root.toolbar*/
 
     //set listeners, tuning views
     abstract fun setupViews()
@@ -42,8 +40,8 @@ abstract class BaseFragment<T : BaseViewModel<out IViewModelState>>() : Fragment
         super.onViewCreated(view, savedInstanceState)
 
         //restore state
-        viewModel.restoreState()
-        binding?.restoreUi(savedInstanceState)
+//        viewModel.restoreState()
+//        binding?.restoreUi(savedInstanceState)
 
         //owner it is view
         viewModel.observeState(viewLifecycleOwner) { binding?.bind(it) }
@@ -56,6 +54,7 @@ abstract class BaseFragment<T : BaseViewModel<out IViewModelState>>() : Fragment
 
 
     }
+/*
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
@@ -76,6 +75,7 @@ abstract class BaseFragment<T : BaseViewModel<out IViewModelState>>() : Fragment
 
         binding?.rebind()
     }
+*/
 
     override fun onSaveInstanceState(outState: Bundle) {
         viewModel.saveState()
@@ -83,7 +83,7 @@ abstract class BaseFragment<T : BaseViewModel<out IViewModelState>>() : Fragment
         super.onSaveInstanceState(outState)
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu) {
+    /*override fun onPrepareOptionsMenu(menu: Menu) {
         if (root.toolbarBuilder.items.isNotEmpty()) {
             for ((index, menuHolder) in root.toolbarBuilder.items.withIndex()) {
                 val item = menu.add(0, menuHolder.menuId, index, menuHolder.title)
@@ -97,7 +97,7 @@ abstract class BaseFragment<T : BaseViewModel<out IViewModelState>>() : Fragment
             }
         } else menu.clear()
         super.onPrepareOptionsMenu(menu)
-    }
+    }*/
 
     //open for overwrite in fragment if need
     open fun renderLoading(loadingState: Loading) {
