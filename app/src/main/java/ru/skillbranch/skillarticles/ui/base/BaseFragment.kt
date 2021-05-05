@@ -15,10 +15,10 @@ abstract class BaseFragment<T : BaseViewModel<out VMState>>() : Fragment() {
     @Inject
     lateinit var root: RootActivity
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
+    /*@VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     abstract val viewModel: T
     protected abstract val layout: Int
-    open val binding: Binding? = null
+    open val binding: Binding? = null*/
 
    /* open val prepareToolbar: (ToolbarBuilder.() -> Unit)? = null
     open val prepareBottombar: (BottombarBuilder.() -> Unit)? = null
@@ -27,9 +27,9 @@ abstract class BaseFragment<T : BaseViewModel<out VMState>>() : Fragment() {
         get() = root.toolbar*/
 
     //set listeners, tuning views
-    abstract fun setupViews()
+//    abstract fun setupViews()
 
-    override fun onCreateView(
+   /* override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -53,7 +53,7 @@ abstract class BaseFragment<T : BaseViewModel<out VMState>>() : Fragment() {
         viewModel.observeLoading(viewLifecycleOwner) { renderLoading(it) }
 
 
-    }
+    }*/
 /*
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
@@ -77,11 +77,11 @@ abstract class BaseFragment<T : BaseViewModel<out VMState>>() : Fragment() {
     }
 */
 
-    override fun onSaveInstanceState(outState: Bundle) {
+   /* override fun onSaveInstanceState(outState: Bundle) {
         viewModel.saveState()
         binding?.saveUi(outState)
         super.onSaveInstanceState(outState)
-    }
+    }*/
 
     /*override fun onPrepareOptionsMenu(menu: Menu) {
         if (root.toolbarBuilder.items.isNotEmpty()) {

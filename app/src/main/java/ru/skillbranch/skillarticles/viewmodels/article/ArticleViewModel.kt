@@ -270,7 +270,7 @@ data class ArticleState(
     val hashtags: List<String> = emptyList()// хештеги контента
 
 ) : VMState {
-    override fun save(outState: SavedStateHandle) {
+    /*override fun save(outState: SavedStateHandle) {
 
         outState.set("isSearch", isSearch)
         outState.set("searchQuery", searchQuery)
@@ -291,7 +291,7 @@ data class ArticleState(
             answerTo = savedState["answerTo"],
             answerToMessageId = savedState["answerToSlug"]
         )
-    }
+    }*/
 }
 
 data class BottombarData(

@@ -11,7 +11,6 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.animation.doOnEnd
 import androidx.core.view.isVisible
 import com.google.android.material.shape.MaterialShapeDrawable
-import kotlinx.android.synthetic.main.layout_bottombar.view.*
 import ru.skillbranch.skillarticles.ui.custom.behaviors.BottombarBehavior
 import kotlin.math.hypot
 
@@ -44,8 +43,8 @@ class Bottombar @JvmOverloads constructor(
         super.onRestoreInstanceState(state)
         if (state is SavedState) {
             isSearchMode = state.ssIsSearchMode
-            reveal.isVisible = isSearchMode
-            group_bottom.isVisible = !isSearchMode
+//            reveal.isVisible = isSearchMode
+//            group_bottom.isVisible = !isSearchMode
         }
     }
 
@@ -57,7 +56,7 @@ class Bottombar @JvmOverloads constructor(
     }
 
     private fun animateHideSearchPanel() {
-        group_bottom.isVisible = true
+       /* group_bottom.isVisible = true
         val endRadius = hypot(width.toFloat(), height / 2f)
         val va = ViewAnimationUtils.createCircularReveal(
             reveal,
@@ -67,11 +66,11 @@ class Bottombar @JvmOverloads constructor(
             0f
         )
         va.doOnEnd { reveal.isVisible = false }
-        va.start()
+        va.start()*/
     }
 
     private fun animateShowSearchPanel() {
-        reveal.isVisible = true
+        /*reveal.isVisible = true
         val endRadius = hypot(width.toFloat(), height / 2f)
         val va = ViewAnimationUtils.createCircularReveal(
             reveal,
@@ -81,11 +80,11 @@ class Bottombar @JvmOverloads constructor(
             endRadius
         )
         va.doOnEnd { group_bottom.isVisible = false }
-        va.start()
+        va.start()*/
     }
 
     fun bindSearchInfo(searchCount: Int = 0, position: Int = 0) {
-        if (searchCount == 0) {
+       /* if (searchCount == 0) {
             tv_search_result.text = "Not found"
             btn_result_up.isEnabled = false
             btn_result_down.isEnabled = false
@@ -99,7 +98,7 @@ class Bottombar @JvmOverloads constructor(
         when(position){
             0 -> btn_result_up.isEnabled = false
             searchCount -1 -> btn_result_down.isEnabled = false
-        }
+        }*/
     }
 
     fun show(){

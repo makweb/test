@@ -6,6 +6,7 @@ import androidx.lifecycle.*
 import androidx.paging.DataSource
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import ru.skillbranch.skillarticles.data.local.entities.ArticleItem
 import ru.skillbranch.skillarticles.data.local.entities.CategoryData
@@ -16,16 +17,23 @@ import ru.skillbranch.skillarticles.viewmodels.base.BaseViewModel
 import ru.skillbranch.skillarticles.viewmodels.base.VMState
 import ru.skillbranch.skillarticles.viewmodels.base.Notify
 import java.util.concurrent.Executors
+import javax.inject.Inject
 
-class ArticlesViewModel @ViewModelInject constructor(
-    @Assisted handle: SavedStateHandle,
+@HiltViewModel
+class ArticlesViewModel @Inject constructor(
+    handle: SavedStateHandle,
     private val repository: ArticlesRepository
 ) :
     BaseViewModel<ArticlesState>(ArticlesState(), handle) {
 
     init {
-//        Log.e("ArticlesViewModel", "vm init: $prefs");
-//        EntryPointAccessors.fromApplication(App.applicationContext(), PrefManager::class.java)
+        subscribeOnDataSource(repository.findTags()) { tags, currentState ->
+            currentState.copy(tags = tags)
+        }
+
+        subscribeOnDataSource(repository.findCategoriesData()) { categories, currentState ->
+            currentState.copy(categories = categories)
+        }
     }
 
     private var isLoadingInitial = false
@@ -175,9 +183,19 @@ data class ArticlesState(
     val isLoading: Boolean = true,
     val isBookmark: Boolean = false,
     val selectedCategories: List<String> = emptyList(),
-    val isHashtagSearch: Boolean = false
+    val isHashtagSearch: Boolean = false,
+    val tags: List<String> = emptyList(),
+    val categories: List<CategoryData> = emptyList()
 ) : VMState
 
+
+fun ArticlesState.toSuggestionData(): SuggestionData =
+    SuggestionData(isHashtagSearch, tags.filter { it.startsWith(searchQuery ?: "", true)})
+
+data class SuggestionData(
+    val isHashtagSearch: Boolean = false,
+    val tags: List<String> = emptyList()
+)
 
 class ArticlesBoundaryCallback(
     private val zeroLoadingHandle: () -> Unit,

@@ -8,41 +8,30 @@ import android.os.Environment
 import android.util.Log
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts.*
 import androidx.annotation.VisibleForTesting
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.fragment_profile.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import ru.skillbranch.skillarticles.R
-import ru.skillbranch.skillarticles.ui.base.BaseFragment
-import ru.skillbranch.skillarticles.ui.base.Binding
-import ru.skillbranch.skillarticles.ui.delegates.RenderProp
 import ru.skillbranch.skillarticles.ui.dialogs.AvatarActionsDialog
-import ru.skillbranch.skillarticles.viewmodels.base.VMState
-import ru.skillbranch.skillarticles.viewmodels.base.NavigationCommand
-import ru.skillbranch.skillarticles.viewmodels.profile.PendingAction
-import ru.skillbranch.skillarticles.viewmodels.profile.ProfileState
 import ru.skillbranch.skillarticles.viewmodels.profile.ProfileViewModel
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
 @AndroidEntryPoint
-class ProfileFragment() : BaseFragment<ProfileViewModel>() {
+class ProfileFragment() : Fragment(R.layout.fragment_profile) {
 
-    override val viewModel: ProfileViewModel by activityViewModels()
-    override val layout: Int = R.layout.fragment_profile
-    override val binding: ProfileBinding by lazy { ProfileBinding() }
+    val viewModel: ProfileViewModel by activityViewModels()
+    val layout: Int = R.layout.fragment_profile
+//    val binding: ProfileBinding by lazy { ProfileBinding() }
 
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -62,11 +51,11 @@ class ProfileFragment() : BaseFragment<ProfileViewModel>() {
 
         val resultRegistry = requireActivity().activityResultRegistry
 
-        permissionsLauncher = registerForActivityResult(RequestMultiplePermissions(),resultRegistry,::callbackPermissions)
+        /*permissionsLauncher = registerForActivityResult(RequestMultiplePermissions(),resultRegistry,::callbackPermissions)
         cameraLauncher = registerForActivityResult(TakePicture(), resultRegistry, ::callbackCamera)
         galleryLauncher = registerForActivityResult(GetContent(), resultRegistry, ::callbackGallery)
         editPhotoLauncher = registerForActivityResult(EditImageContract(), resultRegistry, ::callbackEditPhoto)
-        settingsLauncher = registerForActivityResult(StartActivityForResult(), resultRegistry, ::callbackSettings)
+        settingsLauncher = registerForActivityResult(StartActivityForResult(), resultRegistry, ::callbackSettings)*/
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,18 +69,18 @@ class ProfileFragment() : BaseFragment<ProfileViewModel>() {
                 AvatarActionsDialog.EDIT_KEY -> {
                     lifecycleScope.launch(Dispatchers.IO) {
                         //Glide submit get it is sync call, don`t call on UI thread
-                        val sourceFile =
+                        /*val sourceFile =
                             Glide.with(requireActivity()).asFile().load(binding.avatar).submit()
                                 .get()
                         val sourceUri = FileProvider.getUriForFile(
                             requireContext(),
                             "${requireContext().packageName}.provider",
                             sourceFile
-                        )
+                        )*/
 
-                        withContext(Dispatchers.Main) {
+                        /*withContext(Dispatchers.Main) {
                             viewModel.handleEditAction(sourceUri, prepareTempUri())
-                        }
+                        }*/
                     }
                 }
             }
@@ -99,7 +88,7 @@ class ProfileFragment() : BaseFragment<ProfileViewModel>() {
         }
     }
 
-    override fun setupViews() {
+   /* override fun setupViews() {
         iv_avatar.setOnClickListener {
             val action =
                 ProfileFragmentDirections.actionNavProfileToDialogAvatarActions(binding.avatar.isNotBlank())
@@ -111,17 +100,17 @@ class ProfileFragment() : BaseFragment<ProfileViewModel>() {
             permissionsLauncher.launch(it.toTypedArray())
         }
 
-        viewModel.observeActivityResults(viewLifecycleOwner) {
-            when (it) {
+        *//*viewModel.observeActivityResults(viewLifecycleOwner) {
+           *//**//* when (it) {
                 is PendingAction.GalleryAction -> galleryLauncher.launch(it.payload)
                 is PendingAction.SettingsAction -> settingsLauncher.launch(it.payload)
                 is PendingAction.CameraAction -> cameraLauncher.launch(it.payload)
                 is PendingAction.EditAction -> editPhotoLauncher.launch(it.payload)
-            }
-        }
-    }
+            }*//**//*
+        }*//*
+    }*/
 
-    private fun updateAvatar(avatarUrl: String) {
+    /*private fun updateAvatar(avatarUrl: String) {
         if (avatarUrl.isBlank()) {
             Glide.with(this)
                 .load(R.drawable.ic_avatar)
@@ -133,7 +122,7 @@ class ProfileFragment() : BaseFragment<ProfileViewModel>() {
                 .apply(RequestOptions.circleCropTransform())
                 .into(iv_avatar)
         }
-    }
+    }*/
 
     @VisibleForTesting
     fun prepareTempUri(): Uri {
@@ -174,7 +163,7 @@ class ProfileFragment() : BaseFragment<ProfileViewModel>() {
             )
         }
         //remove tempt file by uri if permissions denied
-        val isAllGranted = !permissionsResult.values.map { it.first }.contains(false)
+       /* val isAllGranted = !permissionsResult.values.map { it.first }.contains(false)
         if (!isAllGranted) {
             val tempUri = when (val pendingAction = binding.pendingAction) {
                 is PendingAction.CameraAction -> pendingAction.payload
@@ -184,10 +173,10 @@ class ProfileFragment() : BaseFragment<ProfileViewModel>() {
             removeTempUri(tempUri)
         }
 
-        viewModel.handlePermission(permissionsResult)
+        viewModel.handlePermission(permissionsResult)*/
     }
 
-    private fun callbackCamera(result: Boolean) {
+    /*private fun callbackCamera(result: Boolean) {
         val (payload) = binding.pendingAction as PendingAction.CameraAction
         //if take photo from camera upload to server
         if (result) {
@@ -197,7 +186,7 @@ class ProfileFragment() : BaseFragment<ProfileViewModel>() {
             //else remove temp uri
             removeTempUri(payload)
         }
-    }
+    }*/
 
     private fun callbackGallery(result: Uri?) {
         if (result != null) {
@@ -206,7 +195,7 @@ class ProfileFragment() : BaseFragment<ProfileViewModel>() {
         }
     }
 
-    private fun callbackEditPhoto(result: Uri?) {
+    /*private fun callbackEditPhoto(result: Uri?) {
         if (result != null) {
             val inputStream = requireContext().contentResolver.openInputStream(result)
             viewModel.handleUploadPhoto(inputStream)
@@ -215,13 +204,13 @@ class ProfileFragment() : BaseFragment<ProfileViewModel>() {
             val (payload) = binding.pendingAction as PendingAction.EditAction
             removeTempUri(payload.second)
         }
-    }
+    }*/
 
     private fun callbackSettings(result: ActivityResult) {
         //TODO do something
     }
 
-    inner class ProfileBinding : Binding() {
+    /*inner class ProfileBinding : Binding() {
 
         var pendingAction: PendingAction? = null
 
@@ -254,5 +243,5 @@ class ProfileFragment() : BaseFragment<ProfileViewModel>() {
             respect = data.respect
             pendingAction = data.pendingAction
         }
-    }
+    }*/
 }

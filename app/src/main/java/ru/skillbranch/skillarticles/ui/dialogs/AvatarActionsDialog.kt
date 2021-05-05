@@ -6,11 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
-import androidx.core.view.isVisible
 import androidx.fragment.app.setFragmentResult
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import kotlinx.android.synthetic.main.bottom_sheet.*
 import ru.skillbranch.skillarticles.R
 
 class AvatarActionsDialog : BottomSheetDialogFragment() {
@@ -35,7 +33,7 @@ class AvatarActionsDialog : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         //check device has camera
-        val hasCamera = requireContext().packageManager.hasSystemFeature(FEATURE_CAMERA_ANY)
+        /*val hasCamera = requireContext().packageManager.hasSystemFeature(FEATURE_CAMERA_ANY)
         item_camera.isVisible = hasCamera
         item_camera.setOnClickListener {
             setFragmentResult(AVATAR_ACTIONS_KEY, bundleOf(SELECT_ACTION_KEY to CAMERA_KEY))
@@ -58,6 +56,6 @@ class AvatarActionsDialog : BottomSheetDialogFragment() {
         item_delete.setOnClickListener {
             setFragmentResult(AVATAR_ACTIONS_KEY, bundleOf(SELECT_ACTION_KEY to DELETE_KEY))
             dismiss()
-        }
+        }*/
     }
 }

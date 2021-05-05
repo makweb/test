@@ -8,15 +8,15 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
-import kotlinx.android.extensions.LayoutContainer
-import kotlinx.android.synthetic.main.item_category_dialog.*
 import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.data.local.entities.CategoryData
+import ru.skillbranch.skillarticles.databinding.ItemCategoryDialogBinding
 
 class CategoryAdapter(private val listener: (String, Boolean) -> Unit) :
     ListAdapter<CategoryDataItem, CategoryVH>(CategoryDiffCallback()) {
+    LayoutInflater.from(parent.context).inflate(R.layout.item_category_dialog, parent, false)
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryVH = CategoryVH(
-        LayoutInflater.from(parent.context).inflate(R.layout.item_category_dialog, parent, false),
+        ItemCategoryDialogBinding.inflate(),
         listener
     )
 
@@ -25,12 +25,12 @@ class CategoryAdapter(private val listener: (String, Boolean) -> Unit) :
     }
 }
 
-class CategoryVH(override val containerView: View, val listener: (String, Boolean) -> Unit) :
-    RecyclerView.ViewHolder(containerView), LayoutContainer {
+class CategoryVH(val containerView: View, val listener: (String, Boolean) -> Unit) :
+    RecyclerView.ViewHolder(containerView) {
 
     fun bind(item: CategoryDataItem) {
         //remove listener
-        ch_select.setOnCheckedChangeListener(null)
+       /* ch_select.setOnCheckedChangeListener(null)
         //bind data
         ch_select.isChecked = item.isChecked
         Glide.with(containerView.context)
@@ -43,7 +43,7 @@ class CategoryVH(override val containerView: View, val listener: (String, Boolea
 
         //set listeners
         ch_select.setOnCheckedChangeListener { _, checked -> listener(item.categoryId, checked) }
-        itemView.setOnClickListener { ch_select.toggle() }
+        itemView.setOnClickListener { ch_select.toggle() }*/
     }
 
 }

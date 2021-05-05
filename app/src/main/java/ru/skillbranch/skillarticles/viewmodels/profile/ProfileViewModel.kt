@@ -1,23 +1,9 @@
 package ru.skillbranch.skillarticles.viewmodels.profile
 
 import android.Manifest
-import android.content.Intent
 import android.net.Uri
-import android.os.Parcel
-import android.os.Parcelable
-import android.provider.Settings
-import androidx.annotation.VisibleForTesting
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.android.parcel.Parcelize
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
 import ru.skillbranch.skillarticles.data.repositories.ProfileRepository
 import ru.skillbranch.skillarticles.viewmodels.base.*
 import java.io.InputStream
@@ -29,7 +15,7 @@ class ProfileViewModel @Inject constructor(
     private val repository: ProfileRepository
 ) :
     BaseViewModel<ProfileState>(ProfileState(), handle) {
-    private val activityResults = MutableLiveData<Event<PendingAction>>()
+//    private val activityResults = MutableLiveData<Event<PendingAction>>()
 
 
     private val storagePermissions = listOf<String>(
@@ -50,12 +36,12 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+   /* @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun startForResult(action: PendingAction) {
         activityResults.value = Event(action)
-    }
+    }*/
 
-    fun handlePermission(permissionsResult: Map<String, Pair<Boolean, Boolean>>) {
+    /*fun handlePermission(permissionsResult: Map<String, Pair<Boolean, Boolean>>) {
 
         val isAllGranted = !permissionsResult.values.map { it.first }.contains(false)
         val isAllMayBeShown = !permissionsResult.values.map { it.second }.contains(false)
@@ -77,9 +63,9 @@ class ProfileViewModel @Inject constructor(
 
         }
 
-    }
+    }*/
 
-    fun executeOpenSettings() {
+   /* fun executeOpenSettings() {
         val errHandler = {
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                 data = Uri.parse("package:ru.skillbranch.skillarticles")
@@ -87,17 +73,17 @@ class ProfileViewModel @Inject constructor(
             startForResult(PendingAction.SettingsAction(intent))
         }
         notify(Notify.ErrorMessage("Need permissions for storage", "Open settings", errHandler))
-    }
+    }*/
 
-    fun executePendingAction() {
+   /* fun executePendingAction() {
         val pendingAction = currentState.pendingAction ?: return
         startForResult(pendingAction)
-    }
+    }*/
 
     fun handleUploadPhoto(inputStream: InputStream?) {
         inputStream ?: return //or show error notification
 
-        launchSafety(null, { updateState { it.copy(pendingAction = null) } }) {
+        /*launchSafety(null, { updateState { it.copy(pendingAction = null) } }) {
             //read file stream on background thread (IO)
             val byteArray =
                 withContext(Dispatchers.IO) { inputStream.use { input -> input.readBytes() } }
@@ -106,15 +92,15 @@ class ProfileViewModel @Inject constructor(
             val body: MultipartBody.Part =
                 MultipartBody.Part.createFormData("avatar", "name.jpg", reqFile)
             repository.uploadAvatar(body)
-        }
+        }*/
     }
 
-    fun observeActivityResults(owner: LifecycleOwner, handle: (action: PendingAction) -> Unit) {
+   /* fun observeActivityResults(owner: LifecycleOwner, handle: (action: PendingAction) -> Unit) {
         activityResults.observe(owner, EventObserver { handle(it) })
-    }
+    }*/
 
     fun handleEditAction(source: Uri, destination: Uri) {
-        updateState { it.copy(pendingAction = PendingAction.EditAction(source to destination)) }
+//        updateState { it.copy(pendingAction = PendingAction.EditAction(source to destination)) }
         requestPermissions(storagePermissions)
     }
 
@@ -123,12 +109,12 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun handleGalleryAction() {
-        updateState { it.copy(pendingAction = PendingAction.GalleryAction("image/jpeg")) }
+//        updateState { it.copy(pendingAction = PendingAction.GalleryAction("image/jpeg")) }
         requestPermissions(storagePermissions)
     }
 
     fun handleCameraAction(destination: Uri) {
-        updateState { it.copy(pendingAction = PendingAction.CameraAction(destination)) }
+//        updateState { it.copy(pendingAction = PendingAction.CameraAction(destination)) }
         requestPermissions(storagePermissions)
     }
 }
@@ -139,18 +125,18 @@ data class ProfileState(
     val about: String? = null,
     val rating: Int = 0,
     val respect: Int = 0,
-    val pendingAction: PendingAction? = null
+//    val pendingAction: PendingAction? = null
 ) : VMState {
-    override fun save(outState: SavedStateHandle) {
+   /* override fun save(outState: SavedStateHandle) {
         outState.set("pendingAction", pendingAction)
     }
 
     override fun restore(savedState: SavedStateHandle): VMState {
         return copy(pendingAction = savedState["pendingAction"])
-    }
+    }*/
 }
 
-sealed class PendingAction() : Parcelable {
+/*sealed class PendingAction() : Parcelable {
     abstract val payload: Any?
 
     @Parcelize
@@ -185,4 +171,4 @@ sealed class PendingAction() : Parcelable {
         }
 
     }
-}
+}*/

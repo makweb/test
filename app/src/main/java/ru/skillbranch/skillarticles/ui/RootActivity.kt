@@ -1,13 +1,16 @@
 package ru.skillbranch.skillarticles.ui
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.navigation.NavController
+import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.NavigationUI.setupActionBarWithNavController
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -34,6 +37,9 @@ class RootActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(viewBinding.root)
+
+        Log.e("RootActivity", "onCreate after super")
         //top level destination
         val appbarConfiguration = AppBarConfiguration(
             setOf(
@@ -43,9 +49,12 @@ class RootActivity : AppCompatActivity() {
                 R.id.nav_profile
             )
         )
-        navController = findNavController(R.id.nav_host_fragment)
+
+        setSupportActionBar(viewBinding.toolbar)
+
+        navController =findNavController(R.id.nav_host_fragment)
         setupActionBarWithNavController(navController, appbarConfiguration)
-        viewBinding.navView.setOnNavigationItemSelectedListener {
+       viewBinding.navView.setOnNavigationItemSelectedListener {
             //if click on bottom navigation item - > navigate to destination by item id
             viewModel.navigate(NavigationCommand.To(it.itemId))
             true
@@ -64,7 +73,7 @@ class RootActivity : AppCompatActivity() {
             }
         }
 
-        setSupportActionBar(viewBinding.toolbar)
+
         viewModel.observeState(this) { subscribeOnState(it) }
         viewModel.observeNotifications(this) { renderNotification(it) }
         viewModel.observeNavigation(this) { subscribeOnNavigation(it) }

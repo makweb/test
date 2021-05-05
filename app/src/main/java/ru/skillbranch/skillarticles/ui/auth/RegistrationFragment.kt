@@ -13,12 +13,12 @@ import ru.skillbranch.skillarticles.viewmodels.auth.AuthViewModel
 /**
  * A simple [Fragment] subclass.
  */
-class RegistrationFragment() : BaseFragment<AuthViewModel>() {
+class RegistrationFragment() : Fragment(R.layout.fragment_auth) {
 
     //for testing
     var _mockFactory: ((SavedStateRegistryOwner)->ViewModelProvider.Factory)? = null
 
-    override val viewModel: AuthViewModel by viewModels{
+   /* override val viewModel: AuthViewModel by viewModels{
         _mockFactory?.invoke(this) ?: defaultViewModelProviderFactory
     }
 
@@ -27,7 +27,7 @@ class RegistrationFragment() : BaseFragment<AuthViewModel>() {
 
     override fun setupViews() {
 
-    }
+    }*/
 
 
 }
